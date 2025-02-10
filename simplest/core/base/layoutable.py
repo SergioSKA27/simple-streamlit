@@ -9,6 +9,9 @@ class Layoutable:
         
     def lrender(self,based_component: Callable[..., Any],*args, **kwargs):
         if self._colum_based:
+            if not args and not kwargs:
+                args = [len(self.layers)]
+
             k = 0
             c = based_component(*args, **kwargs) 
             for layer in self.oderf if self.oderf else self.layers.keys():
@@ -20,8 +23,8 @@ class Layoutable:
             
             c = based_component(*args, **kwargs)
             for layer in self.oderf if self.oderf else self.layers.keys():
-                for component in self.layers[layer]:
-                    with c:
+                with c:
+                    for component in self.layers[layer]:
                         component()
         
 
