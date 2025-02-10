@@ -62,3 +62,12 @@ class Renderable(metaclass=ABCMeta):
             return self._safe_render(*self.args, **self.kwargs)
 
         return self._safe_render(*args, **kwargs)
+
+    def __str__(self):
+        k = None
+        if "key" in self.kwargs:
+            k = self.kwargs["key"]
+        return f"Renderable({self._base_component.__name__}) with key: {k}"
+    
+    def __repr__(self):
+        return self.__str__()
