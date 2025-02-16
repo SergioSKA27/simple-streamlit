@@ -99,3 +99,9 @@ class StreamlitComponentParser:
             com = self.parse(*args, **kwargs)
         
         return com()
+    
+    def __str__(self):
+        return f"StreamlitComponentParser({self.component.__name__}): {self.config}"
+    
+    def __repr__(self):
+        return self.__str__()
