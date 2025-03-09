@@ -22,6 +22,7 @@ class StreamlitComponentParser:
         self._errhandler = None
         self._strict = True
         self._autoconfig = True
+        self._causes = []
 
     @property
     def config(self):
@@ -111,6 +112,18 @@ class StreamlitComponentParser:
         self._errhandler = errhandler
         return self
 
+    def add_cause(self, cause: Callable[..., Any]) -> "StreamlitComponentParser":
+        """
+        Add a cause to the StreamlitComponentParser.
+
+        Args:
+            cause (Callable[..., Any]): A callable that takes the result of the render method as an argument.
+
+        Returns:
+            StreamlitComponentParser: The instance of the parser with the cause added.
+        """
+        self._causes.append(cause)
+        return self
     def set_strict(self, strict: bool) -> "StreamlitComponentParser":
         """
         Set the strict mode for the StreamlitComponentParser.
@@ -179,6 +192,9 @@ class StreamlitComponentParser:
             comp._set_base_component(self.component).set_errhandler(
                 errhandler
             ).set_fatal(fatal)
+        
+        for cause in self._causes:
+                comp.add_cause(cause)
 
         return comp
 
@@ -229,4 +245,13 @@ class StreamlitComponentParser:
         Returns:
             Dict[str, Any]: A dictionary representation of the parsed data.
         """
-        return self.parse().serialize()
+        c = self.parse().serialize()
+        return {
+            "component": c,
+            "stateful": self._stateful,
+            "fatal": self._fatal,
+            "strict": self._strict,
+            "causes": [cause.__name__ for cause in self._causes],
+            "_type": "StreamlitComponentParser",         
+        }
+
