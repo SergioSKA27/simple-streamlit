@@ -32,6 +32,7 @@ class Renderable(metaclass=ABCMeta):
         self.fatal = True  # type: bool
         self._errhandler = None  # type: Callable[[Exception], None]
         self._top_render = False  # type: bool
+        self._causes = []  # type: List[Callable[..., Any]]
 
     @abstractmethod
     def render(self, *args, **kwargs):
@@ -90,6 +91,19 @@ class Renderable(metaclass=ABCMeta):
         self._errhandler = handler
         return self
 
+    def add_cause(self, cause: Callable[..., Any]):
+        """
+        Adds a cause to the renderable object.
+
+        Args:
+            cause (Callable[..., Any]): A callable that takes the result of the render method as an argument.
+
+        Returns:
+            self: The instance of the renderable object with the cause added.
+        """
+        self._causes.append(cause)
+        return self
+    
     def is_top_render(self):
         """
         Check if this instance is the top render.
@@ -137,7 +151,10 @@ class Renderable(metaclass=ABCMeta):
             - If the error handler does not handle the exception, a `NonRenderError` is returned.
         """
         try:
-            return self.render(*args, **kwargs)
+            if res := self.render(*args, **kwargs):
+                for cause in self._causes:
+                    cause(res)
+                return res
         except Exception as e:
             status = False
             if self._errhandler:
@@ -208,12 +225,13 @@ class Renderable(metaclass=ABCMeta):
             "kwargs": self.kwargs,
             "fatal": self.fatal,
             "top_render": self._top_render,
+            "causes": [cause.__name__ for cause in self._causes]
         }
 
         
     
     @classmethod
-    def deserialize(cls, data: Dict[str, Any],components: Dict[str, Callable[..., Any]]):
+    def deserialize(cls, data: Dict[str, Any],components: Dict[str, Callable[..., Any]],causes: Dict[str, Callable[..., Any]]):
         """
         Deserialize the object from a dictionary.
 
@@ -229,4 +247,5 @@ class Renderable(metaclass=ABCMeta):
         obj.fatal = data["fatal"]
         obj._top_render = data["top_render"]
         obj._base_component = components[data["base_component"]]
+        obj._causes = [causes[cause] for cause in data["causes"]]
         return obj
