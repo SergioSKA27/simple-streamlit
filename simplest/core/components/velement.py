@@ -42,6 +42,8 @@ class VElement(Renderable):
             "args": self.args,
             "kwargs": self.kwargs,
             "fatal": self.fatal,
+            "causes": [cause.__name__ for cause in self._causes],
+            "_type": "VElement"
         }
     
 
