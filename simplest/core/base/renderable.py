@@ -32,7 +32,7 @@ class Renderable(metaclass=ABCMeta):
         self.fatal = True  # type: bool
         self._errhandler = None  # type: Callable[[Exception], None]
         self._top_render = False  # type: bool
-        self._causes = []  # type: List[Callable[..., Any]]
+        self._effects = []  # type: List[Callable[..., Any]]
 
     @abstractmethod
     def render(self, *args, **kwargs):
@@ -82,7 +82,7 @@ class Renderable(metaclass=ABCMeta):
         Sets the error handler for the renderable object.
 
         Args:
-            handler (Callable[[Exception], Union[NoReturn, bool]]): A callable that takes an Exception as an argument 
+            handler (Callable[[Exception], Union[NoReturn, bool]]): A callable that takes an Exception as an argument
             and returns either NoReturn or a boolean value.
 
         Returns:
@@ -91,22 +91,38 @@ class Renderable(metaclass=ABCMeta):
         self._errhandler = handler
         return self
 
-    def add_cause(self, cause: Callable[..., Any]):
+    def add_effect(self, effect: Callable[..., Any]):
         """
-        Adds a cause to the renderable object.
+        Adds a effect to the renderable object.
+        An effect is a callable that takes the result of the render method as an argument.
+
 
         Args:
-            cause (Callable[..., Any]): A callable that takes the result of the render method as an argument.
+            effect (Callable[..., Any]): A callable that takes the result of the render method as an argument.
 
         Returns:
-            self: The instance of the renderable object with the cause added.
+            self: The instance of the renderable object with the effect added.
         """
-        self._causes.append(cause)
+        self._effects.append(effect)
         return self
-    
+
+    def add_effects(self, effects: List[Callable[..., Any]]):
+        """
+        Adds multiple effects to the renderable object.
+
+        Args:
+            effects (List[Callable[..., Any]]): A list of callables that take the result of the render method as an argument.
+
+        Returns:
+            self: The instance of the renderable object with the effects added.
+        """
+        self._effects.extend(effects)
+        return self
+
     def is_top_render(self):
         """
         Check if this instance is the top render.
+        Top render is the render that is  called at the top level.
 
         Returns:
             bool: True if this instance is the top render, False otherwise.
@@ -152,8 +168,8 @@ class Renderable(metaclass=ABCMeta):
         """
         try:
             if res := self.render(*args, **kwargs):
-                for cause in self._causes:
-                    cause(res)
+                for eff in self._effects:
+                    eff(res)
                 return res
         except Exception as e:
             status = False
@@ -211,7 +227,7 @@ class Renderable(metaclass=ABCMeta):
             str: A string representation of the object.
         """
         return self.__str__()
-    
+
     def serialize(self):
         """
         Serialize the object to a dictionary.
@@ -225,13 +241,37 @@ class Renderable(metaclass=ABCMeta):
             "kwargs": self.kwargs,
             "fatal": self.fatal,
             "top_render": self._top_render,
-            "causes": [cause.__name__ for cause in self._causes]
         }
 
-        
-    
+    def __enter__(self):
+        """
+        Enter the context manager.
+
+        Returns:
+            Any: The result of the render method.
+        """
+        return self.render()
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """
+        Exit the context manager.
+
+        Args:
+            exc_type: The type of the exception.
+            exc_value: The exception value.
+            traceback: The traceback of the exception.
+        """
+
+        if exc_type:
+            raise exc_type(exc_value).with_traceback(traceback)
+
     @classmethod
-    def deserialize(cls, data: Dict[str, Any],components: Dict[str, Callable[..., Any]],causes: Dict[str, Callable[..., Any]]):
+    def deserialize(
+        cls,
+        data: Dict[str, Any],
+        components: Dict[str, Callable[..., Any]],
+        effects: Dict[str, Callable[..., Any]],
+    ):
         """
         Deserialize the object from a dictionary.
 
@@ -247,5 +287,4 @@ class Renderable(metaclass=ABCMeta):
         obj.fatal = data["fatal"]
         obj._top_render = data["top_render"]
         obj._base_component = components[data["base_component"]]
-        obj._causes = [causes[cause] for cause in data["causes"]]
         return obj
