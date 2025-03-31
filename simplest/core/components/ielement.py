@@ -69,6 +69,5 @@ class IElement(Renderable, Stateful):
             "key": self.key,
             "editable": self.editable,
             "strict": self.strict,
-            "causes": [cause.__name__ for cause in self._causes],
             "_type": "IElement",
         }
