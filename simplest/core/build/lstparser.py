@@ -167,7 +167,6 @@ class StreamlitLayoutParser:
         ).set_component_parser(
             StreamlitComponentParser
         )
-        self.schema.set_body_name(f"__{self.container.__name__}__")
         comp.schema = self.schema
 
         return comp
