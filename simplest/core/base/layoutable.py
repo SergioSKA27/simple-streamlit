@@ -1,11 +1,27 @@
 from typing import List, Dict, Any, Callable, NoReturn, Union, Literal
+from ..handlers.schema import Schema
+from ..handlers.layer import Layer
+
 
 
 class Layoutable:
     def __init__(self):
-        self.layers = {}  # type: Dict[Union[int, str], List[Callable[..., Any]]]
+        self.schema = Schema() # type: Schema
         self._colum_based = False  # type: bool
-        self.oderf = []  # type: List[Union[int, str]]
+        self._component_parser = None 
+    
+    def set_component_parser(self, component_parser: Callable[..., Any]):
+        """
+        Sets the component parser for the layoutable object.
+
+        Args:
+            component_parser (Callable[..., Any]): The component parser to be set.
+
+        Returns:
+            self: Returns the instance of the object to allow for method chaining.
+        """
+        self._component_parser = component_parser
+        return self
 
     def lrender(self, based_component: Callable[..., Any], *args, **kwargs):
         """
@@ -19,80 +35,70 @@ class Layoutable:
         """
         if self._colum_based:
             if not args and not kwargs:
-                args = [len(self.layers)]
-
+                args = [len(self.schema)]
             k = 0
             c = based_component(*args, **kwargs)
-            for layer in self.oderf if self.oderf else self.layers.keys():
+            for l in range(len(self.schema)):
                 with c[k]:
-                    for component in self.layers[layer]:
-                        component()
-                k += 1
+                    self.schema(l)
+            
         else:
-
             c = based_component(*args, **kwargs)
-            for layer in self.oderf if self.oderf else self.layers.keys():
-                with c:
-                    for component in self.layers[layer]:
-                        component()
-
-    def add_layer(self, idlayer: Union[int, str], components: List[Callable[..., Any]]):
-        """
-        Adds a layer to the layout with the specified ID and components.
-
-        Args:
-            idlayer (Union[int, str]): The identifier for the layer. Can be an integer or a string.
-            components (List[Callable[..., Any]]): A list of callable components to be added to the layer.
-
-        Returns:
-            self: The instance of the class to allow method chaining.
-        """
-        self.layers[idlayer] = components
-        return self
-
-    def add_component(self, idlayer: Union[int, str], component: Callable[..., Any]):
-        """
-        Adds a component to the specified layer.
-
-        Args:
-            idlayer (Union[int, str]): The identifier of the layer to which the component will be added.
-            component (Callable[..., Any]): The component to be added to the layer.
-
-        Returns:
-            self: The instance of the class to allow method chaining.
-        """
-        if idlayer not in self.layers:
-            self.layers[idlayer] = []
-        self.layers[idlayer].append(component)
-        return self
-
-    def add_component_unparsed(
-        self,
-        idlayer: Union[int, str],
-        parser: Callable[..., Any],
-        component: Callable[..., Any],
-        *args,
-        **kwargs
-    ):
-        """
-        Adds a component to a specified layer after parsing it.
-
-        Args:
-            idlayer (Union[int, str]): The identifier of the layer to which the component will be added.
-            parser (Callable[..., Any]): A function that parses the component.
-            component (Callable[..., Any]): The component to be parsed and added.
-            *args: Additional positional arguments to be passed to the parser.
-            **kwargs: Additional keyword arguments to be passed to the parser.
-
-        Returns:
-            Any: The parsed component that was added to the specified layer.
-        """
+            with c:
+                self.schema()
+        return c
+            
         
-        if idlayer not in self.layers:
-            self.layers[idlayer] = []
-        ps = parser(component, *args, **kwargs)
-        self.layers[idlayer].append(ps)
-        return self.layers[idlayer][-1]
+
+    def add_component(self, component: Callable[..., Any], *args, **kwargs) -> Layer:
+        """
+        Adds a component directly to the main layer.
+
+        Args:
+            idlayer (Optional[Union[int, str]]): The identifier of the layer to which the component will be added.
+            component (Callable[..., Any]): The component to be added.
+            *args: Additional positional arguments to be passed to the component.
+            **kwargs: Additional keyword arguments to be passed to the component.
+        
+        Returns:
+            Layer: The layer to which the component was added.
+        """
+        comp = self._component_parser(component, *args, **kwargs)
+        self.schema.add_component(comp)
+        return comp
+
+
+    def add_layer(self, idlayer: Union[int, str]):
+        """
+        Adds a specific layer to the layoutable object.
+        
+        Args:
+            idlayer (Union[int, str]): The identifier of the layer to be added.
+        
+        Returns:
+            Layer: The layer that was added.
+        """
+        return self.schema.add_layer(idlayer)
+    
+    def add_to_layer(self, idlayer: Union[int, str], component: Callable[..., Any], *args, **kwargs):
+        """
+        Adds a component to a specific layer.
+
+        Args:
+            idlayer (Union[int, str]): The identifier of the layer to which the component will be added.
+            component (Callable[..., Any]): The component to be added.
+            *args: Additional positional arguments to be passed to the component.
+            **kwargs: Additional keyword arguments to be passed to the component.
+        
+        Returns:
+            Layer: The layer to which the component was added.
+        """
+        comp = self._component_parser(component, *args, **kwargs)
+        self.schema[idlayer].add_component(comp)
+        return comp
+    
+    
+
 
     def set_column_based(self, column_based: bool):
         """
@@ -127,7 +133,7 @@ class Layoutable:
                 - "order": The order attribute of the layoutable object.
         """
         return {
-            "layers": self.layers,
+            "schema": self.schema.serialize(),
             "column_based": self._colum_based,
-            "order": self.oderf
         }
+
