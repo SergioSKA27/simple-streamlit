@@ -1,8 +1,7 @@
-from typing import List, Dict, Any, Callable, NoReturn, Union
+from typing import List, Dict, Any, Callable, NoReturn, Union, Optional
 
 from ..components.ielement import IElement
 from ..components.velement import VElement
-
 
 class StreamlitComponentParser:
     def __init__(self, component: Callable[..., Any], *args, **kwargs):
@@ -17,15 +16,15 @@ class StreamlitComponentParser:
         self.component = component
         self.args = args
         self.kwargs = kwargs
-        self._stateful = False
-        self._fatal = True
-        self._errhandler = None
-        self._strict = True
-        self._autoconfig = True
-        self._causes = []
+        self._stateful: bool = False
+        self._fatal: bool = True
+        self._errhandler: Optional[Callable[[Exception], Union[NoReturn, bool]]] = None
+        self._strict: bool = True
+        self._autoconfig: bool = True
+        self._effects: List[Callable[..., Any]] = []
 
     @property
-    def config(self):
+    def config(self) -> Dict[str, Any]:
         """
         Returns the configuration settings of the parser.
 
@@ -43,7 +42,7 @@ class StreamlitComponentParser:
             "strict": self._strict,
         }
 
-    def set_config(self, **kwargs):
+    def set_config(self, **kwargs) -> Dict[str, Any]:
         """
         Set or retrieve the configuration settings.
         If no keyword arguments are provided, the current configuration is returned.
@@ -79,6 +78,8 @@ class StreamlitComponentParser:
         Returns:
             StreamlitComponentParser: The instance of the parser with the updated stateful property.
         """
+        if not isinstance(stateful, bool):
+            raise ValueError("stateful must be a boolean")
         self._stateful = stateful
         return self
 
@@ -92,6 +93,8 @@ class StreamlitComponentParser:
         Returns:
             StreamlitComponentParser: The instance of the parser with the updated fatal flag.
         """
+        if not isinstance(fatal, bool):
+            raise ValueError("fatal must be a boolean")
         self._fatal = fatal
         return self
 
@@ -109,12 +112,14 @@ class StreamlitComponentParser:
         Returns:
             StreamlitComponentParser: The instance of the parser with the error handler set.
         """
+        if not callable(errhandler):
+            raise ValueError("errhandler must be callable")
         self._errhandler = errhandler
         return self
 
-    def add_cause(self, cause: Callable[..., Any]) -> "StreamlitComponentParser":
+    def add_effect(self, effect: Callable[..., Any]) -> "StreamlitComponentParser":
         """
-        Add a cause to the StreamlitComponentParser.
+        Add an effect to the StreamlitComponentParser.
 
         Args:
             cause (Callable[..., Any]): A callable that takes the result of the render method as an argument.
@@ -122,8 +127,24 @@ class StreamlitComponentParser:
         Returns:
             StreamlitComponentParser: The instance of the parser with the cause added.
         """
-        self._causes.append(cause)
+        if not callable(effect):
+            raise ValueError("cause must be callable")
+        self._effects.append(effect)
         return self
+    
+    def add_effects(self, effects: List[Callable[..., Any]]) -> "StreamlitComponentParser":
+        """
+        Add multiple effects to the StreamlitComponentParser.
+
+        Args:
+            causes (List[Callable[..., Any]]): A list of callables that take the result of the render method as an argument.
+
+        Returns:
+            StreamlitComponentParser: The instance of the parser with the causes added.
+        """
+        self._effects.extend(effects)
+        return self
+
     def set_strict(self, strict: bool) -> "StreamlitComponentParser":
         """
         Set the strict mode for the StreamlitComponentParser.
@@ -134,6 +155,8 @@ class StreamlitComponentParser:
         Returns:
         StreamlitComponentParser: The instance of the parser with updated strict mode.
         """
+        if not isinstance(strict, bool):
+            raise ValueError("strict must be a boolean")
         self._strict = strict
         return self
 
@@ -147,6 +170,8 @@ class StreamlitComponentParser:
         Returns:
             StreamlitComponentParser: The instance of the parser with the updated autoconfig setting.
         """
+        if not isinstance(autoconfig, bool):
+            raise ValueError("autoconfig must be a boolean")
         self._autoconfig = autoconfig
         return self
 
@@ -193,8 +218,7 @@ class StreamlitComponentParser:
                 errhandler
             ).set_fatal(fatal)
         
-        for cause in self._causes:
-                comp.add_cause(cause)
+        comp.add_effects(self._effects)
 
         return comp
 
@@ -216,7 +240,7 @@ class StreamlitComponentParser:
 
         return com()
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Return a string representation of the StreamlitComponentParser instance.
 
@@ -227,7 +251,7 @@ class StreamlitComponentParser:
         """
         return f"StreamlitComponentParser({self.component.__name__}): {self.config}"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """
         Return the string representation of the object.
 
@@ -251,7 +275,7 @@ class StreamlitComponentParser:
             "stateful": self._stateful,
             "fatal": self._fatal,
             "strict": self._strict,
-            "causes": [cause.__name__ for cause in self._causes],
+            "effects": [e.__name__ for e in self._effects],
             "_type": "StreamlitComponentParser",         
         }
 
