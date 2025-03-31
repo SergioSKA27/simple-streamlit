@@ -19,6 +19,7 @@ class Container(Renderable, Layoutable):
         Layoutable.__init__(self)
         self._base_component = None  # type: Callable[..., Any]
         self._top_render = False  # type: bool
+        self.schema.set_body_name("__container__")
 
     def render(self, *args, **kwargs):
         """
@@ -40,39 +41,26 @@ class Container(Renderable, Layoutable):
         Returns:
             str: A string in the format "Container(<base_component_name>): <layers>".
         """
-        return f"Container({self._base_component.__name__}): {self.layers}"
+        return f"Container({self._base_component.__name__}): {self.schema}"
     
     def serialize(self):
         """
         Serializes the container object into a dictionary format.
         Returns:
-            dict: A dictionary containing the serialized data of the container object, including:
-                - component (str): The name of the base component.
-                - args (list): The positional arguments of the container.
-                - kwargs (dict): The keyword arguments of the container.
-                - fatal (bool): Indicates if the container is fatal.
-                - top_render (bool): Indicates if the container is the top render.
-                - layers (dict): A dictionary where each key is a layer and the value is a list of serialized components.
-                - column_based (bool): Indicates if the container is column-based.
-                - order (Any): The order of the container.
+            dict: A dictionary containing the serialized container object.
         """
-        d = {}
-
-        for layer in self.layers:
-            d[layer] = []
-            for component in self.layers[layer]:
-                d[layer].append(component.serialize())
         
+        if self._base_component is not None:
+            self.schema.set_body_name(f"__{self._base_component.__name__}__")
         return {
             "component": self._base_component.__name__,
             "args": self.args,
             "kwargs": self.kwargs,
             "fatal": self.fatal,
             "top_render": self._top_render,
-            "layers": d,
+            "schema": self.schema.serialize(),
             "column_based": self._colum_based,
-            "order": self.oderf,
-            
+            "_type": "Container"
         }
 
     
