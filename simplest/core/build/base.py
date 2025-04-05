@@ -7,6 +7,7 @@ class ParserConfig(BaseModel):
     """
     Pydantic model to validate the configuration of the Parser.
     """
+
     component: Callable[..., Any]
     args: List[Any] = Field(default_factory=list)
     kwargs: Dict[str, Any] = Field(default_factory=dict)
@@ -22,22 +23,18 @@ class ParserConfig(BaseModel):
         if not callable(value):
             raise ValueError("The 'component' must be callable.")
         return value
-    
+
     @field_validator("errhandler")
     def validate_errhandler(cls, value):
         if value is not None and not callable(value):
             raise ValueError("The 'errhandler' must be callable.")
         return value
-    
 
     @field_validator("effects")
     def validate_effects(cls, value):
         if not isinstance(value, list) or not all(callable(effect) for effect in value):
             raise ValueError("All 'effects' must be callable.")
         return value
-    
-    
-
 
 
 class Parser(ABC):
@@ -45,7 +42,9 @@ class Parser(ABC):
     Abstract base class for parsers.
     """
 
-    def __init__(self, component: Callable[..., Any], *args: Any, **kwargs: Any) -> None:
+    def __init__(
+        self, component: Callable[..., Any], *args: Any, **kwargs: Any
+    ) -> None:
         # Validate inputs using the Pydantic model
         config = ParserConfig(
             component=component,
@@ -78,8 +77,6 @@ class Parser(ABC):
             errhandler=self._errhandler,
             effects=self._effects,
         )
-    
-
 
     @abstractmethod
     def parse(self, *args: Any, **kwargs: Any) -> Callable[..., Any]:
@@ -88,36 +85,34 @@ class Parser(ABC):
         """
         raise NotImplementedError("Subclasses must implement this method.")
 
-
-
     def set_stateful(self, stateful: bool) -> "Parser":
         """
         Set the stateful property of the parser.
         """
         self._stateful = stateful
         return self
-    
+
     def set_fatal(self, fatal: bool) -> "Parser":
         """
         Set the fatal property of the parser.
         """
         self._fatal = fatal
         return self
-    
+
     def set_strict(self, strict: bool) -> "Parser":
         """
         Set the strict property of the parser.
         """
         self._strict = strict
         return self
-    
+
     def set_autoconfig(self, autoconfig: bool) -> "Parser":
         """
         Set the autoconfig property of the parser.
         """
         self.autoconfig = autoconfig
         return self
-    
+
     def set_errhandler(self, errhandler: Callable[..., Any]) -> "Parser":
         """
         Set the error handler of the parser.
@@ -126,7 +121,6 @@ class Parser(ABC):
             raise ValueError("The 'errhandler' must be callable.")
         self._errhandler = errhandler
         return self
-    
 
     def add_effect(self, effect: Callable[..., Any]) -> "Parser":
         """
@@ -136,19 +130,17 @@ class Parser(ABC):
             raise ValueError("The 'effect' must be callable.")
         self._effects.append(effect)
         return self
-    
 
     def add_effects(self, effects: List[Callable[..., Any]]) -> "Parser":
         """
         Add multiple effects to the parser.
         """
-        if not isinstance(effects, list) or not all(callable(effect) for effect in effects):
+        if not isinstance(effects, list) or not all(
+            callable(effect) for effect in effects
+        ):
             raise ValueError("All 'effects' must be callable.")
         self._effects.extend(effects)
         return self
-    
-
-
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         """
@@ -156,4 +148,3 @@ class Parser(ABC):
         """
         comp = self.parse() if not args and not kwargs else self.parse(*args, **kwargs)
         return comp()
-    
