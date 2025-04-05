@@ -1,6 +1,7 @@
 from typing import List, Dict, Any, Callable, NoReturn, Union
 from abc import ABC, abstractmethod
 
+
 class Stateful(ABC):
 
     def __init__(self, *_, **kwargs):
@@ -18,7 +19,7 @@ class Stateful(ABC):
         self.key = None
         self.editable = False
         self.strict = True
-       
+
         if "key" in kwargs:
             self.key = kwargs["key"]
 
@@ -34,7 +35,7 @@ class Stateful(ABC):
             NotImplementedError: If the method is not implemented by a subclass.
         """
         raise NotImplementedError("The track_state method must be implemented")
-    
+
     @abstractmethod
     def set_state(self, state: Any):
         """
@@ -50,7 +51,6 @@ class Stateful(ABC):
         NotImplementedError: If the method is not implemented by a subclass.
         """
         raise NotImplementedError("The set_state method must be implemented")
-      
 
     def set_key(self, key: str):
         """
@@ -64,7 +64,7 @@ class Stateful(ABC):
         """
         self.key = key
         return self
-    
+
     def set_editable(self, editable: bool):
         """
         Set the editable state of the object.
@@ -77,7 +77,7 @@ class Stateful(ABC):
         """
         self.editable = editable
         return self
-    
+
     def set_strict(self, strict: bool):
         """
         Set the strict mode for the object.
@@ -90,7 +90,7 @@ class Stateful(ABC):
         """
         self.strict = strict
         return self
-    
+
     def set_state(self, state: Any):
         """
         Sets the state of the object.
@@ -101,9 +101,9 @@ class Stateful(ABC):
         """
         if not self.editable:
             raise Exception("The state is not editable")
-        
+
         return self.set_state(state)
-    
+
     def get_key(self):
         """
         Retrieve the key associated with this instance.
@@ -112,7 +112,7 @@ class Stateful(ABC):
             The key associated with this instance.
         """
         return self.key
-    
+
     def get_state(self):
         """
         Retrieve the current state by invoking the track_state method.
@@ -121,7 +121,7 @@ class Stateful(ABC):
             The current state as tracked by the track_state method.
         """
         return self.track_state()
-    
+
     def get_state_tracker(self) -> Callable[[], Any]:
         """
         Returns a callable that tracks the state.
@@ -130,17 +130,3 @@ class Stateful(ABC):
             Callable[[], Any]: A function that, when called, tracks the state.
         """
         return self.track_state
-    
-        
-
-
-
-    
-
-        
-
-
-
-
-
-
