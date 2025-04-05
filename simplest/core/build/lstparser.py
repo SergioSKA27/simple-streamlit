@@ -7,6 +7,7 @@ from ..handlers.layer import Layer
 from .cstparser import StreamlitComponentParser
 from .base import Parser
 
+
 class StreamlitLayoutParser(Parser):
     def __init__(self, container: Callable[..., Any], *args, **kwargs):
         """
@@ -21,7 +22,6 @@ class StreamlitLayoutParser(Parser):
         self._colum_based = False  # type: bool
         self.schema = Schema(f"__{self.component.__name__}__")
 
-    
     @property
     def body(self) -> Layer:
         """
@@ -118,7 +118,6 @@ class StreamlitLayoutParser(Parser):
             StreamlitLayoutParser(container, *args, **kwargs)
         )
 
-
     def parse(
         self,
         fatal: bool = True,
@@ -145,13 +144,9 @@ class StreamlitLayoutParser(Parser):
             errhandler = self.parserconfig.errhandler
             column_based = self._colum_based
 
-        comp._set_base_component(self.component).set_errhandler(
-            errhandler 
-        ).set_fatal(fatal).set_column_based(
-            column_based
-        ).set_component_parser(
-            StreamlitComponentParser
-        )
+        comp._set_base_component(self.component).set_errhandler(errhandler).set_fatal(
+            fatal
+        ).set_column_based(column_based).set_component_parser(StreamlitComponentParser)
         comp.schema = self.schema
 
         return comp
@@ -169,7 +164,6 @@ class StreamlitLayoutParser(Parser):
         self._colum_based = column_based
         return self
 
-    
     def __getitem__(
         self, index: Union[int, str]
     ) -> Union[Layer, StreamlitComponentParser]:
@@ -210,7 +204,6 @@ class StreamlitLayoutParser(Parser):
             str: A string representation of the StreamlitLayoutParser object.
         """
         return self.__repr__()
-
 
     def serialize(self) -> Dict[str, Any]:
         """
