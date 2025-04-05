@@ -5,6 +5,7 @@ from ..components.velement import VElement
 
 from .base import Parser
 
+
 class StreamlitComponentParser(Parser):
     def __init__(self, component: Callable[..., Any], *args, **kwargs):
         """
@@ -16,8 +17,6 @@ class StreamlitComponentParser(Parser):
             **kwargs: Arbitrary keyword arguments for the component.
         """
         super().__init__(component, *args, **kwargs)
-
-   
 
     def parse(
         self,
@@ -52,11 +51,10 @@ class StreamlitComponentParser(Parser):
             comp._set_base_component(self.component).set_errhandler(
                 errhandler
             ).set_fatal(fatal)
-        
+
         comp.add_effects(self._effects)
 
         return comp
-
 
     def __str__(self) -> str:
         """
@@ -67,7 +65,9 @@ class StreamlitComponentParser(Parser):
         Returns:
             str: A string in the format "StreamlitComponentParser(<component_name>): <config>"
         """
-        return f"StreamlitComponentParser({self.component.__name__}): {self.parserconfig}"
+        return (
+            f"StreamlitComponentParser({self.component.__name__}): {self.parserconfig}"
+        )
 
     def __repr__(self) -> str:
         """
@@ -94,6 +94,5 @@ class StreamlitComponentParser(Parser):
             "fatal": self.parserconfig.fatal,
             "strict": self.parserconfig.strict,
             "effects": [e.__name__ for e in self._effects],
-            "_type": "StreamlitComponentParser",         
+            "_type": "StreamlitComponentParser",
         }
-
