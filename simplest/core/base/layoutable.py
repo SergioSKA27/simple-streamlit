@@ -3,13 +3,12 @@ from ..handlers.schema import Schema
 from ..handlers.layer import Layer
 
 
-
 class Layoutable:
     def __init__(self):
-        self.schema = Schema() # type: Schema
+        self.schema = Schema()  # type: Schema
         self._colum_based = False  # type: bool
-        self._component_parser = None 
-    
+        self._component_parser = None
+
     def set_component_parser(self, component_parser: Callable[..., Any]):
         """
         Sets the component parser for the layoutable object.
@@ -36,18 +35,20 @@ class Layoutable:
         if self._colum_based:
             k = 0
             c = based_component(*args, **kwargs)
-            for l in self.schema.main_body.order if len(self.schema.main_body.order) > 0 else range(len(self.schema.main_body)):
+            for l in (
+                self.schema.main_body.order
+                if len(self.schema.main_body.order) > 0
+                else range(len(self.schema.main_body))
+            ):
                 with c[k]:
                     self.schema.main_body[l]()
                 k += 1
-            
+
         else:
             c = based_component(*args, **kwargs)
             with c:
                 self.schema()
         return c
-            
-        
 
     def add_component(self, component: Callable[..., Any], *args, **kwargs) -> Layer:
         """
@@ -58,7 +59,7 @@ class Layoutable:
             component (Callable[..., Any]): The component to be added.
             *args: Additional positional arguments to be passed to the component.
             **kwargs: Additional keyword arguments to be passed to the component.
-        
+
         Returns:
             Layer: The layer to which the component was added.
         """
@@ -66,20 +67,21 @@ class Layoutable:
         self.schema.add_component(comp)
         return comp
 
-
     def add_layer(self, idlayer: Union[int, str]):
         """
         Adds a specific layer to the layoutable object.
-        
+
         Args:
             idlayer (Union[int, str]): The identifier of the layer to be added.
-        
+
         Returns:
             Layer: The layer that was added.
         """
         return self.schema.add_layer(idlayer)
-    
-    def add_to_layer(self, idlayer: Union[int, str], component: Callable[..., Any], *args, **kwargs):
+
+    def add_to_layer(
+        self, idlayer: Union[int, str], component: Callable[..., Any], *args, **kwargs
+    ):
         """
         Adds a component to a specific layer.
 
@@ -88,16 +90,13 @@ class Layoutable:
             component (Callable[..., Any]): The component to be added.
             *args: Additional positional arguments to be passed to the component.
             **kwargs: Additional keyword arguments to be passed to the component.
-        
+
         Returns:
             Layer: The layer to which the component was added.
         """
         comp = self._component_parser(component, *args, **kwargs)
         self.schema[idlayer].add_component(comp)
         return comp
-    
-    
-
 
     def set_column_based(self, column_based: bool):
         """
@@ -120,7 +119,7 @@ class Layoutable:
             bool: True if the layout is column-based, False otherwise.
         """
         return self._colum_based
-    
+
     def serialize(self):
         """
         Serializes the layoutable object into a dictionary.
@@ -135,4 +134,3 @@ class Layoutable:
             "schema": self.schema.serialize(),
             "column_based": self._colum_based,
         }
-
