@@ -34,13 +34,12 @@ class Layoutable:
         None
         """
         if self._colum_based:
-            if not args and not kwargs:
-                args = [len(self.schema)]
             k = 0
             c = based_component(*args, **kwargs)
-            for l in range(len(self.schema)):
+            for l in self.schema.main_body.order if len(self.schema.main_body.order) > 0 else range(len(self.schema.main_body)):
                 with c[k]:
-                    self.schema(l)
+                    self.schema.main_body[l]()
+                k += 1
             
         else:
             c = based_component(*args, **kwargs)
