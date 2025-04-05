@@ -1,11 +1,13 @@
 from typing import List, Tuple, Dict, Any, Union, Callable, NoReturn, Literal
-from .cstparser import StreamlitComponentParser
+
 from ..components.container import Container
 from ..handlers.schema import Schema
 from ..handlers.layer import Layer
 
+from .cstparser import StreamlitComponentParser
+from .base import Parser
 
-class StreamlitLayoutParser:
+class StreamlitLayoutParser(Parser):
     def __init__(self, container: Callable[..., Any], *args, **kwargs):
         """
         Initialize the parser with a container and optional arguments.
@@ -15,34 +17,11 @@ class StreamlitLayoutParser:
             *args: Variable length argument list.
             **kwargs: Arbitrary keyword arguments.
         """
-        self.container = container
-        self.args = args
-        self.kwargs = kwargs
-        self._stateful = False  # type: bool
-        self._fatal = True  # type: bool
-        self._errhandler = None  # type: Callable[[Exception], Union[NoReturn, bool]]
-        self._strict = False
+        super().__init__(container, *args, **kwargs)
         self._colum_based = False  # type: bool
-        self.schema = Schema(f"__{self.container.__name__}__")
+        self.schema = Schema(f"__{self.component.__name__}__")
 
-    @property
-    def config(self) -> Dict[str, Any]:
-        """
-        Returns the configuration settings of the parser.
-
-        Returns:
-            dict: A dictionary containing the following configuration settings:
-                - stateful (bool): Indicates if the parser is stateful.
-                - fatal (bool): Indicates if the parser should raise fatal errors.
-                - errhandler (callable): The error handler function.
-                - strict (bool): Indicates if the parser should enforce strict mode.
-        """
-        return {
-            "fatal": self._fatal,
-            "errhandler": self._errhandler,
-            "strict": self._strict,
-        }
-
+    
     @property
     def body(self) -> Layer:
         """
@@ -139,6 +118,7 @@ class StreamlitLayoutParser:
             StreamlitLayoutParser(container, *args, **kwargs)
         )
 
+
     def parse(
         self,
         fatal: bool = True,
@@ -160,10 +140,15 @@ class StreamlitLayoutParser:
         """
 
         comp = Container(*self.args, **self.kwargs)
-        comp._set_base_component(self.container).set_errhandler(
-            errhandler if errhandler else self._errhandler
-        ).set_fatal(fatal if fatal else self._fatal).set_column_based(
-            column_based if column_based else self._colum_based
+        if self.parserconfig.autoconfig:
+            fatal = self.parserconfig.fatal
+            errhandler = self.parserconfig.errhandler
+            column_based = self._colum_based
+
+        comp._set_base_component(self.component).set_errhandler(
+            errhandler 
+        ).set_fatal(fatal).set_column_based(
+            column_based
         ).set_component_parser(
             StreamlitComponentParser
         )
@@ -184,34 +169,7 @@ class StreamlitLayoutParser:
         self._colum_based = column_based
         return self
 
-    def set_errhandler(
-        self, errhandler: Callable[[Exception], Union[NoReturn, bool]]
-    ) -> "StreamlitLayoutParser":
-        """
-        Sets a custom error handler for the parser.
-
-        Args:
-            errhandler (Callable[[Exception], Union[NoReturn, bool]]): A custom error handler function.
-
-        Returns:
-            StreamlitLayoutParser: The current StreamlitLayoutParser object.
-        """
-        self._errhandler = errhandler
-        return self
-
-    def set_fatal(self, fatal: bool) -> "StreamlitLayoutParser":
-        """
-        Sets the fatal flag for the parser.
-
-        Args:
-            fatal (bool): If True, the parser will raise exceptions on errors. If False, it will not.
-
-        Returns:
-            StreamlitLayoutParser: The current StreamlitLayoutParser object.
-        """
-        self._fatal = fatal
-        return self
-
+    
     def __getitem__(
         self, index: Union[int, str]
     ) -> Union[Layer, StreamlitComponentParser]:
@@ -253,13 +211,6 @@ class StreamlitLayoutParser:
         """
         return self.__repr__()
 
-    def __call__(self, *args, **kwds):
-        if not args and not kwds:
-            comp = self.parse()
-        else:
-            comp = self.parse(*args, **kwds)
-
-        return comp()
 
     def serialize(self) -> Dict[str, Any]:
         """
@@ -269,7 +220,7 @@ class StreamlitLayoutParser:
             dict: A dictionary containing the serialized StreamlitLayoutParser object.
         """
         return {
-            "component": self.container.__name__,
+            "component": self.component.__name__,
             "args": self.args,
             "kwargs": self.kwargs,
             "fatal": self._fatal,
