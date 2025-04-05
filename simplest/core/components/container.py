@@ -2,6 +2,7 @@ from typing import List, Dict, Any, Callable, NoReturn, Union, Literal
 from ..base.renderable import Renderable
 from ..base.layoutable import Layoutable
 
+
 class Container(Renderable, Layoutable):
     def __init__(self, *args, **kwargs):
         """
@@ -42,14 +43,14 @@ class Container(Renderable, Layoutable):
             str: A string in the format "Container(<base_component_name>): <layers>".
         """
         return f"Container({self._base_component.__name__}): {self.schema}"
-    
+
     def serialize(self):
         """
         Serializes the container object into a dictionary format.
         Returns:
             dict: A dictionary containing the serialized container object.
         """
-        
+
         if self._base_component is not None:
             self.schema.set_body_name(f"__{self._base_component.__name__}__")
         return {
@@ -60,10 +61,5 @@ class Container(Renderable, Layoutable):
             "top_render": self._top_render,
             "schema": self.schema.serialize(),
             "column_based": self._colum_based,
-            "_type": "Container"
+            "_type": "Container",
         }
-
-    
-    
-
-    
