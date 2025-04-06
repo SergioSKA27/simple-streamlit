@@ -89,10 +89,12 @@ class StreamlitComponentParser(Parser):
         """
         c = self.parse().serialize()
         return {
-            "component": c,
-            "stateful": self.parserconfig.stateful,
-            "fatal": self.parserconfig.fatal,
-            "strict": self.parserconfig.strict,
-            "effects": [e.__name__ for e in self._effects],
-            "_type": "StreamlitComponentParser",
+            "__base__": c,
+            "__parser__": {
+                "stateful": self.parserconfig.stateful,
+                "fatal": self.parserconfig.fatal,
+                "strict": self.parserconfig.strict,
+                "autoconfig": self.parserconfig.autoconfig,
+            },
+            "__type__": "StreamlitComponentParser",
         }
