@@ -5,6 +5,7 @@ from simplest.core.build.lstparser import StreamlitLayoutParser
 from simplest.core.build.cstparser import StreamlitComponentParser
 from simplest.core.handlers.layer import Layer
 from simplest.core.handlers.schema import Schema
+from streamlit import set_page_config
 
 class AppPageConfig(BaseModel):
     """
@@ -26,6 +27,23 @@ class AppPageConfig(BaseModel):
         if value is not None and not callable(value):
             raise ValueError("failhandler must be callable")
         return value
+
+class StreamlitPageConfig(BaseModel):
+    """
+    Configuration model for Streamlit page settings.
+    
+    Attributes:
+        title (str): The title of the Streamlit app. Default is "Streamlit App".
+        layout (Literal["centered", "wide"]): The layout of the Streamlit app. Default is "centered".
+        initial_sidebar_state (Literal["auto", "expanded", "collapsed"]): 
+            The initial state of the sidebar. Default is "auto".
+    """
+    title: str = Field(default="Streamlit App")
+    layout: Literal["centered", "wide"] = Field(default="centered")
+    initial_sidebar_state: Literal["auto", "expanded", "collapsed"] = Field(default="auto")
+    page_icon: Optional[str] = Field(default=None)
+
+
 
 class AppPage:
     """
@@ -70,7 +88,7 @@ class AppPage:
         self.failsafe = config.failsafe
         self.failhandler = config.failhandler
         self.strict = config.strict
-        self._body = Schema("__page__")
+        self._body = Schema("__body__")
 
     def add_component(
         self,
@@ -212,7 +230,43 @@ class AppPage:
             Dict[str, Any]: A dictionary representation of the app page.
         """
         return {
-            "body": self._body.serialize(),
-            "failsafe": self.failsafe,
-            "strict": self.strict
+            "__page__": self._body.serialize(),
+            "__config__": {
+                "strict": self.strict,
+                "failsafe": self.failsafe
+            }
         }
+
+
+    @staticmethod
+    def set_page_config(
+        title: str = "Streamlit App",
+        layout: Literal["centered", "wide"] = "centered",
+        initial_sidebar_state: Literal["auto", "expanded", "collapsed"] = "auto",
+        page_icon: Optional[str] = None,
+        **kwargs: Any,
+    ) -> None:
+        """
+        Set the configuration for the Streamlit page.
+        
+        Args:
+            title (str): The title of the Streamlit app. Default is "Streamlit App".
+            layout (Literal["centered", "wide"]): The layout of the Streamlit app. Default is "centered".
+            initial_sidebar_state (Literal["auto", "expanded", "collapsed"]): 
+                The initial state of the sidebar. Default is "auto".
+            page_icon (Optional[str]): The icon for the page. Default is None.
+        """
+        # Validate inputs using the Pydantic model
+        config = StreamlitPageConfig(
+            title=title,
+            layout=layout,
+            initial_sidebar_state=initial_sidebar_state,
+            page_icon=page_icon
+        )
+        set_page_config(
+            page_title=config.title,
+            layout=config.layout,
+            initial_sidebar_state=config.initial_sidebar_state,
+            page_icon=config.page_icon,
+            **kwargs
+        )
