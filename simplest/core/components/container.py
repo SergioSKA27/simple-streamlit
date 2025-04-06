@@ -52,14 +52,13 @@ class Container(Renderable, Layoutable):
         """
 
         if self._base_component is not None:
-            self.schema.set_body_name(f"__{self._base_component.__name__}__")
+            self.schema.set_body_name("__children__")
         return {
-            "component": self._base_component.__name__,
-            "args": self.args,
-            "kwargs": self.kwargs,
-            "fatal": self.fatal,
-            "top_render": self._top_render,
-            "schema": self.schema.serialize(),
-            "column_based": self._colum_based,
-            "_type": "Container",
+            "__component__": self._base_component.__name__,
+            "__args__": {
+                "args": self.args,
+                "kwargs": self.kwargs,
+            },
+            "__schema__": self.schema.serialize(),
+            "__type__": "Container",
         }
