@@ -20,7 +20,7 @@ class StreamlitLayoutParser(Parser):
         """
         super().__init__(container, *args, **kwargs)
         self._colum_based = False  # type: bool
-        self.schema = Schema(f"__{self.component.__name__}__")
+        self.schema = Schema(f"__children__")
 
     @property
     def body(self) -> Layer:
@@ -212,14 +212,14 @@ class StreamlitLayoutParser(Parser):
         Returns:
             dict: A dictionary containing the serialized StreamlitLayoutParser object.
         """
+        c = self.parse().serialize()
         return {
-            "component": self.component.__name__,
-            "args": self.args,
-            "kwargs": self.kwargs,
-            "fatal": self._fatal,
-            "errhandler": self._errhandler,
-            "strict": self._strict,
-            "column_based": self._colum_based,
-            "_type": "StreamlitLayoutParser",
-            "schema": self.schema.serialize(),
+            "__base__": c,
+            "__parser__": {
+                "stateful": self.parserconfig.stateful,
+                "fatal": self.parserconfig.fatal,
+                "strict": self.parserconfig.strict,
+                "column_based": self._colum_based,
+            },
+            "__type__": "StreamlitLayoutParser",
         }
