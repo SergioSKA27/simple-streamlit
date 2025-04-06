@@ -223,3 +223,26 @@ class StreamlitLayoutParser(Parser):
             },
             "__type__": "StreamlitLayoutParser",
         }
+
+    def __enter__(self) -> "StreamlitLayoutParser":
+        """
+        Returns the StreamlitLayoutParser object itself.
+
+        Returns:
+            StreamlitLayoutParser: The StreamlitLayoutParser object itself.
+        """
+        return self
+    
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        """
+        Exits the context manager and performs any necessary cleanup.
+
+        Args:
+            exc_type (type): The type of the exception raised, if any.
+            exc_value (Exception): The exception instance, if any.
+            traceback (TracebackType): The traceback object, if any.
+
+        Returns:
+            None: This method does not return anything.
+        """
+        pass
