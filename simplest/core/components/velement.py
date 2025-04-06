@@ -39,9 +39,10 @@ class VElement(Renderable):
                   positional arguments, keyword arguments, and fatal flag.
         """
         return {
-            "component": self._base_component.__name__,
+            "__component__": self._base_component.__name__,
+            "__args__": {
             "args": self.args,
             "kwargs": self.kwargs,
-            "fatal": self.fatal,
-            "_type": "VElement",
+            },
+            "__type__": "VElement",
         }
