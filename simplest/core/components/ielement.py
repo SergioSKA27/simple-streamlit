@@ -62,12 +62,10 @@ class IElement(Renderable, Stateful):
                 - strict (bool): Indicates if the component is strict.
         """
         return {
-            "component": self._base_component.__name__,
-            "args": self.args,
-            "kwargs": self.kwargs,
-            "fatal": self.fatal,
-            "key": self.key,
-            "editable": self.editable,
-            "strict": self.strict,
-            "_type": "IElement",
+            "__component__": self._base_component.__name__,
+            "__args__": {
+                "args": self.args,
+                "kwargs": self.kwargs,
+            },
+            "__type__": "IElement",
         }
