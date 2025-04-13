@@ -28,7 +28,9 @@ class VElement(Renderable):
         Returns:
             The result of the base component rendered with the provided arguments and keyword arguments.
         """
-        return self._base_component(*self.args, **self.kwargs)
+        args = args or self.args
+        kwargs = kwargs or self.kwargs
+        return self._base_component(*args, **kwargs)
 
     def serialize(self):
         """
