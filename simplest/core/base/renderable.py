@@ -1,15 +1,24 @@
-from typing import List, Dict, Any, Callable, NoReturn, Union
+from typing import List, Dict, Any, Callable, NoReturn, Union, Optional,TypeVar,cast
 from abc import ABCMeta, abstractmethod
 
 from ...err.nonrender import NonRenderError
+from .models.renderable import (
+    RenderableConfig,
+    ErrorHandlerConfig,
+    EffectConfig,
+    EffectsListConfig,
+    BaseComponentConfig,
+)
 
+
+T = TypeVar("T", bound="Renderable")  # Type variable for method chaining
 
 class Renderable(metaclass=ABCMeta):
     """
     Base class for all renderable components.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         """
         Initialize the renderable object with given arguments and keyword arguments.
 
@@ -22,20 +31,24 @@ class Renderable(metaclass=ABCMeta):
             args (tuple): The arguments passed to the base component.
             _base_component (Callable[..., Any]): The base component to be rendered.
             fatal (bool): Indicates if the error is fatal.
-            _errhandler (Callable[[Exception], None]): The error handler function.
+            _errhandler (Callable[[Exception], Union[NoReturn, bool]]): The error handler function.
             _top_render (bool): Indicates if this is the top-level render.
+            _effects (List[Callable[..., Any]]): List of effect functions to be applied to the render result.
         """
-        # the arguments passed directly to the base component
-        self.kwargs = kwargs
-        self.args = args
-        self._base_component = None  # type: Callable[..., Any]
-        self.fatal = True  # type: bool
-        self._errhandler = None  # type: Callable[[Exception], None]
-        self._top_render = False  # type: bool
-        self._effects = []  # type: List[Callable[..., Any]]
+        # Validate inputs using Pydantic model
+        config = RenderableConfig(args=args, kwargs=kwargs)
+
+        # Set the validated values
+        self.kwargs = config.kwargs
+        self.args = config.args
+        self._base_component: Optional[Callable[..., Any]] = None
+        self.fatal: bool = config.fatal
+        self._errhandler: Optional[Callable[[Exception], Union[NoReturn, bool]]] = None
+        self._top_render: bool = config.top_render
+        self._effects: List[Callable[..., Any]] = []
 
     @abstractmethod
-    def render(self, *args, **kwargs):
+    def render(self, *args, **kwargs) -> Any:
         """
         Render the content.
 
@@ -51,7 +64,7 @@ class Renderable(metaclass=ABCMeta):
         """
         raise NotImplementedError("The render method must be implemented")
 
-    def set_top_render(self, top_render: bool):
+    def set_top_render(self, top_render: bool) -> T:
         """
         Sets the top render flag for the renderable object.
 
@@ -61,10 +74,13 @@ class Renderable(metaclass=ABCMeta):
         Returns:
             self: The instance of the renderable object.
         """
-        self._top_render = top_render
-        return self
+        if not isinstance(top_render, bool):
+            raise ValueError("top_render must be a boolean")
 
-    def set_fatal(self, fatal: bool):
+        self._top_render = top_render
+        return cast(T, self)
+
+    def set_fatal(self, fatal: bool) -> T:
         """
         Sets the fatal attribute of the object.
 
@@ -74,10 +90,13 @@ class Renderable(metaclass=ABCMeta):
         Returns:
         self: Returns the instance of the object to allow method chaining.
         """
-        self.fatal = fatal
-        return self
+        if not isinstance(fatal, bool):
+            raise ValueError("fatal must be a boolean")
 
-    def set_errhandler(self, handler: Callable[[Exception], Union[NoReturn, bool]]):
+        self.fatal = fatal
+        return cast(T, self)
+
+    def set_errhandler(self, handler: Callable[[Exception], Union[NoReturn, bool]]) -> T:
         """
         Sets the error handler for the renderable object.
 
@@ -88,14 +107,15 @@ class Renderable(metaclass=ABCMeta):
         Returns:
             self: The instance of the renderable object with the error handler set.
         """
-        self._errhandler = handler
-        return self
+        # Validate handler using Pydantic model
+        config = ErrorHandlerConfig(handler=handler)
+        self._errhandler = config.handler
+        return cast(T, self)
 
-    def add_effect(self, effect: Callable[..., Any]):
+    def add_effect(self, effect: Callable[..., Any]) -> T:
         """
         Adds a effect to the renderable object.
         An effect is a callable that takes the result of the render method as an argument.
-
 
         Args:
             effect (Callable[..., Any]): A callable that takes the result of the render method as an argument.
@@ -103,10 +123,12 @@ class Renderable(metaclass=ABCMeta):
         Returns:
             self: The instance of the renderable object with the effect added.
         """
-        self._effects.append(effect)
-        return self
+        # Validate effect using Pydantic model
+        config = EffectConfig(effect=effect)
+        self._effects.append(config.effect)
+        return cast(T, self)
 
-    def add_effects(self, effects: List[Callable[..., Any]]):
+    def add_effects(self, effects: List[Callable[..., Any]]) -> T:
         """
         Adds multiple effects to the renderable object.
 
@@ -116,20 +138,22 @@ class Renderable(metaclass=ABCMeta):
         Returns:
             self: The instance of the renderable object with the effects added.
         """
-        self._effects.extend(effects)
-        return self
+        # Validate effects using Pydantic model
+        config = EffectsListConfig(effects=effects)
+        self._effects.extend(config.effects)
+        return cast(T, self)
 
-    def is_top_render(self):
+    def is_top_render(self) -> bool:
         """
         Check if this instance is the top render.
-        Top render is the render that is  called at the top level.
+        Top render is the render that is called at the top level.
 
         Returns:
             bool: True if this instance is the top render, False otherwise.
         """
         return self._top_render
 
-    def _set_base_component(self, base_component: Callable[..., Any]):
+    def _set_base_component(self, base_component: Callable[..., Any]) -> T:
         """
         Sets the base component for the renderable object.
 
@@ -139,10 +163,12 @@ class Renderable(metaclass=ABCMeta):
         Returns:
             self: The instance of the renderable object.
         """
-        self._base_component = base_component
-        return self
+        # Validate base_component using Pydantic model
+        config = BaseComponentConfig(base_component=base_component)
+        self._base_component = config.base_component
+        return cast(T, self)
 
-    def _get_base_component(self):
+    def _get_base_component(self) -> Callable[..., Any]:
         """
         Retrieve the base component.
 
@@ -154,13 +180,17 @@ class Renderable(metaclass=ABCMeta):
     def _safe_render(self, *args, **kwargs) -> Union[NoReturn, Any]:
         """
         Safely renders the component by calling the `render` method and handling any exceptions that occur.
+
         Args:
             *args: Variable length argument list to be passed to the `render` method.
             **kwargs: Arbitrary keyword arguments to be passed to the `render` method.
+
         Returns:
             Union[NoReturn, Any]: The result of the `render` method if successful, or a `NonRenderError` if an exception occurs and is not handled.
+
         Raises:
             Exception: Any exception raised by the `render` method if it is not handled by the error handler.
+
         Notes:
             - If an exception occurs, the method will check if an error handler (`_errhandler`) is defined.
             - The error handler should return `True` if the error was handled, otherwise `False`.
@@ -181,29 +211,33 @@ class Renderable(metaclass=ABCMeta):
             if not status:
                 return NonRenderError(e, self.fatal, self)
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *args, **kwargs) -> Union[NoReturn, Any]:
         """
         Call the renderable object with the provided arguments.
+
         This method allows the object to be called as a function. It will render
         the base component with the given arguments if provided, otherwise it will
         use the default arguments stored in the object.
+
         Args:
             *args: Variable length argument list.
             **kwargs: Arbitrary keyword arguments.
+
         Returns:
             The result of the _safe_render method.
+
         Raises:
-            Exception: If the base component is not set.
+            ValueError: If the base component is not set.
         """
         if not self._base_component:
-            raise Exception("The base component is not set")
+            raise ValueError("The base component is not set")
 
         if not args and not kwargs:
             return self._safe_render(*self.args, **self.kwargs)
 
         return self._safe_render(*args, **kwargs)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Returns a string representation of the Renderable object.
 
@@ -217,7 +251,7 @@ class Renderable(metaclass=ABCMeta):
             k = self.kwargs["key"]
         return f"Renderable({self._base_component.__name__}) with key: {k}"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """
         Return a string representation of the object for debugging.
 
@@ -228,7 +262,7 @@ class Renderable(metaclass=ABCMeta):
         """
         return self.__str__()
 
-    def serialize(self):
+    def serialize(self) -> Dict[str, Any]:
         """
         Serialize the object to a dictionary.
 
@@ -243,7 +277,7 @@ class Renderable(metaclass=ABCMeta):
             "top_render": self._top_render,
         }
 
-    def __enter__(self):
+    def __enter__(self) -> Any:
         """
         Enter the context manager.
 
@@ -252,7 +286,7 @@ class Renderable(metaclass=ABCMeta):
         """
         return self.render()
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
         """
         Exit the context manager.
 
@@ -270,8 +304,8 @@ class Renderable(metaclass=ABCMeta):
         cls,
         data: Dict[str, Any],
         components: Dict[str, Callable[..., Any]],
-        effects: Dict[str, Callable[..., Any]],
-    ):
+    ) -> "Renderable":
+
         """
         Deserialize the object from a dictionary.
 
