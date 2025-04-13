@@ -64,6 +64,15 @@ class Stateful(ABC):
         """
         self.key = key
         return self
+    
+    def is_strict(self) -> bool:
+        """
+        Check if the object is in strict mode.
+
+        Returns:
+            bool: True if the object is in strict mode, False otherwise.
+        """
+        return self.strict
 
     def set_editable(self, editable: bool):
         """
