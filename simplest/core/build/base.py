@@ -1,40 +1,10 @@
-from typing import List, Dict, Any, Callable, Union, Optional
+from typing import List, Dict, Any, Callable, Union, Optional, TypeVar, cast
 from abc import ABC, abstractmethod
-from pydantic import BaseModel, Field, field_validator
+
+from .models.base import ParserConfig
 
 
-class ParserConfig(BaseModel):
-    """
-    Pydantic model to validate the configuration of the Parser.
-    """
-
-    component: Callable[..., Any]
-    args: List[Any] = Field(default_factory=list)
-    kwargs: Dict[str, Any] = Field(default_factory=dict)
-    stateful: bool = False
-    fatal: bool = False
-    strict: bool = True
-    autoconfig: bool = True
-    errhandler: Optional[Callable[..., Any]] = None
-    effects: List[Callable[..., Any]] = Field(default_factory=list)
-
-    @field_validator("component")
-    def validate_component(cls, value):
-        if not callable(value):
-            raise ValueError("The 'component' must be callable.")
-        return value
-
-    @field_validator("errhandler")
-    def validate_errhandler(cls, value):
-        if value is not None and not callable(value):
-            raise ValueError("The 'errhandler' must be callable.")
-        return value
-
-    @field_validator("effects")
-    def validate_effects(cls, value):
-        if not isinstance(value, list) or not all(callable(effect) for effect in value):
-            raise ValueError("All 'effects' must be callable.")
-        return value
+T = TypeVar("T", bound="Parser")  # Type variable for method chaining
 
 
 class Parser(ABC):
@@ -85,66 +55,145 @@ class Parser(ABC):
         """
         raise NotImplementedError("Subclasses must implement this method.")
 
-    def set_stateful(self, stateful: bool) -> "Parser":
+    def set_stateful(self, stateful: bool) -> T:
         """
         Set the stateful property of the parser.
+
+        Args:
+            stateful (bool): Whether the parser should maintain state.
+
+        Returns:
+            Parser: Self for method chaining.
+
+        Raises:
+            ValueError: If stateful is not a boolean.
         """
+        if not isinstance(stateful, bool):
+            raise ValueError("The 'stateful' parameter must be a boolean.")
         self._stateful = stateful
-        return self
+        return cast(T, self)
 
-    def set_fatal(self, fatal: bool) -> "Parser":
+    def set_fatal(self, fatal: bool) -> T:
         """
-        Set the fatal property of the parser.
+        Sets the fatal flag for the current instance.
+
+        Args:
+            fatal (bool): A boolean value indicating whether the fatal flag should be set.
+
+        Returns:
+            T: The current instance, cast to the generic type T.
+
+        Raises:
+            ValueError: If the provided 'fatal' parameter is not a boolean.
         """
+        if not isinstance(fatal, bool):
+            raise ValueError("The 'fatal' parameter must be a boolean.")
         self._fatal = fatal
-        return self
+        return cast(T, self)
 
-    def set_strict(self, strict: bool) -> "Parser":
+    def set_strict(self, strict: bool) -> T:
         """
-        Set the strict property of the parser.
+        Sets the strict mode for the current instance.
+
+        Args:
+            strict (bool): A boolean value indicating whether strict mode
+                           should be enabled or disabled.
+
+        Returns:
+            T: The current instance with the updated strict mode setting.
+
+        Raises:
+            ValueError: If the provided 'strict' parameter is not a boolean.
         """
+        if not isinstance(strict, bool):
+            raise ValueError("The 'strict' parameter must be a boolean.")
         self._strict = strict
-        return self
+        return cast(T, self)
 
-    def set_autoconfig(self, autoconfig: bool) -> "Parser":
+    def set_autoconfig(self, autoconfig: bool) -> T:
         """
-        Set the autoconfig property of the parser.
+        Sets the autoconfig attribute for the current instance.
+
+        Args:
+            autoconfig (bool): A boolean value indicating whether to enable or disable autoconfiguration.
+
+        Returns:
+            T: The current instance, cast to the appropriate type.
+
+        Raises:
+            ValueError: If the provided 'autoconfig' parameter is not a boolean.
         """
+        if not isinstance(autoconfig, bool):
+            raise ValueError("The 'autoconfig' parameter must be a boolean.")
         self.autoconfig = autoconfig
-        return self
+        return cast(T, self)
 
-    def set_errhandler(self, errhandler: Callable[..., Any]) -> "Parser":
+    def set_errhandler(self, errhandler: Callable[..., Any]) -> T:
         """
-        Set the error handler of the parser.
+        Sets the error handler for the instance.
+
+        Args:
+            errhandler (Callable[..., Any]): A callable object to handle errors.
+                It must be a callable function or object.
+
+        Returns:
+            T: The instance of the class, allowing method chaining.
+
+        Raises:
+            ValueError: If the provided 'errhandler' is not callable.
         """
         if not callable(errhandler):
             raise ValueError("The 'errhandler' must be callable.")
         self._errhandler = errhandler
-        return self
+        return cast(T, self)
 
-    def add_effect(self, effect: Callable[..., Any]) -> "Parser":
+    def add_effect(self, effect: Callable[..., Any]) -> T:
         """
-        Add an effect to the parser.
+        Adds a callable effect to the list of effects.
+
+        Args:
+            effect (Callable[..., Any]): A callable object representing the effect to be added.
+
+        Returns:
+            T: The instance of the current object, allowing for method chaining.
+
+        Raises:
+            ValueError: If the provided effect is not callable.
         """
         if not callable(effect):
             raise ValueError("The 'effect' must be callable.")
         self._effects.append(effect)
-        return self
+        return cast(T, self)
 
-    def add_effects(self, effects: List[Callable[..., Any]]) -> "Parser":
+    def add_effects(self, effects: List[Callable[..., Any]]) -> T:
         """
-        Add multiple effects to the parser.
+        Adds a list of callable effects to the current instance.
+
+        Args:
+            effects (List[Callable[..., Any]]): A list of callable objects to be added as effects.
+                Each item in the list must be a callable.
+
+        Returns:
+            T: The current instance with the added effects.
+
+        Raises:
+            ValueError: If 'effects' is not a list or if any item in the list is not callable.
         """
         if not isinstance(effects, list) or not all(
             callable(effect) for effect in effects
         ):
             raise ValueError("All 'effects' must be callable.")
         self._effects.extend(effects)
-        return self
+        return cast(T, self)
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         """
-        Call the parser with the given arguments.
+        Enables the instance of the class to be called as a function.
+        If no arguments are provided, it parses and processes the default configuration.
+        If arguments or keyword arguments are provided, it parses and processes them.
+        Returns:
+            Any: The result of the parsed and processed computation.
         """
+
         comp = self.parse() if not args and not kwargs else self.parse(*args, **kwargs)
         return comp()
