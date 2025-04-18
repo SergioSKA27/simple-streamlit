@@ -2,6 +2,7 @@ from typing import (
     List,
     Any,
     Callable,
+    Tuple,
     Union,
     Sequence,
 )
@@ -46,14 +47,29 @@ class Layer:
                 if "key" in el.kwargs and el.kwargs["key"] == index:
                     return el
         return self.elements[index]
+    
+    def __call_all(self) -> List[Callable[..., Any]]:
+        res = []
+        for el in self.elements if not self.order else self.order:
+            if isinstance(el, int):
+                element = self.__getitem__(el)
+            else:
+                element = el
+            
+            if hasattr(element, "parse"):
+                parsed = element.parse()
+                res.append(parsed())
+            else:
+                res.append(
+                    element() # if the element is not parsable, just call it directly
+                )
+                
 
     def __call__(self, key=None) -> Union[Callable[..., Any], List[Callable[..., Any]]]:
         if key:
             # You can also use the key to render only a specific component
             return self.__getitem__(key).parse()()
-        if not self.order:
-            return [el.parse()() for el in self.elements]
-        return [self.__getitem__(el).parse()() for el in self.order]
+        return self.__call_all()
 
     def __repr__(self) -> str:
         return f"Layer: {self.idlayer}"
@@ -73,4 +89,9 @@ class Layer:
         return self
 
     def serialize(self) -> dict[str, Any]:
-        return {self.idlayer: [el.serialize() for el in self.elements]}
+        data = []
+        for el in self.elements:
+            if hasattr(el, "serialize"):
+                data.append(el.serialize())
+                
+        return {self.idlayer: data}
