@@ -1,4 +1,3 @@
-from typing import Any, Callable, Union
 from streamlit import file_uploader,data_editor,camera_input
 from uuid import uuid4
 from ..representation import CommonRepresentation
