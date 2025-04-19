@@ -71,6 +71,18 @@ from .elements.media import (
     AudioRepresentation,
 )
 
+from .containers.rowbased import (
+    ContainerRepresentation,
+    ExpanderRepresentation,
+    FormRepresentation,
+    PopoverRepresentation,
+    ChatMessageRepresentation,
+)
+
+from .containers.columbased import ColumnsRepresentation, TabsRepresentation
+
+from .containers.status import StatusRepresentation, SpinnerRepresentation
+
 
 class StreamlitCommonStandard(BaseStandard):
     """
@@ -131,4 +143,16 @@ class StreamlitCommonStandard(BaseStandard):
         self.add_representation(ImageRepresentation())
         self.add_representation(VideoRepresentation())
         self.add_representation(AudioRepresentation())
+
+        # Containers
+        self.add_representation(ContainerRepresentation())
+        self.add_representation(ExpanderRepresentation())
+        self.add_representation(FormRepresentation())
+        self.add_representation(PopoverRepresentation())
+        self.add_representation(ChatMessageRepresentation())
+        self.add_representation(ColumnsRepresentation())
+        self.add_representation(TabsRepresentation())
+        self.add_representation(StatusRepresentation())
+        self.add_representation(SpinnerRepresentation())
+        
         
