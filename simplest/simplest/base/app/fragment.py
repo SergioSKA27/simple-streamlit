@@ -3,9 +3,10 @@ from typing import List, Dict, Any, Callable, NoReturn, Union, Literal, Optional
 from datetime import timedelta
 from functools import partial
 
+
 from ...core.build.lstparser import StreamlitLayoutParser
 from ...core.build.cstparser import StreamlitComponentParser
-
+from ...config.base.standard import BaseStandard
 
 from ..components.fragment import Fragment
 
@@ -34,6 +35,8 @@ class AppFragment(Fragment):
         failhandler: Callable[[Exception], Union[NoReturn, bool]] = None,
         strict: bool = True,
         run_every: Union[int, float, timedelta, str, None] = None,
+        standard: BaseStandard = None,
+
     ):
         """
         Initialize a new AppPage instance.
@@ -52,8 +55,10 @@ class AppFragment(Fragment):
             failhandler=failhandler,
             strict=strict,
             run_every=run_every,
+            
         )
         self._name = name
+        self._standard = standard
 
     def add_component(
         self,
@@ -82,13 +87,24 @@ class AppFragment(Fragment):
             component = component.component
             args = component.args
             kwargs = component.kwargs
-
+        
         if not isinstance(component, Callable):
             raise TypeError(f"Expected a callable, got {type(component)}")
-        return self._body.add_component(
+        
+        conf = None
+        if self._standard is not None:
+            conf = self._standard.get_similar(component)
+
+        
+        comp: StreamlitComponentParser = self._body.add_component(
             StreamlitComponentParser(component, *args, **kwargs)
         )
+        if conf is not None:
+            comp.set_stateful(conf.is_stateful()).set_fatal(
+                conf.is_fatal()).set_strict(conf.is_strict())
 
+        return comp
+    
     def add_container(
         self,
         container: Union[Callable[..., Any], StreamlitLayoutParser],
@@ -119,10 +135,20 @@ class AppFragment(Fragment):
 
         if not isinstance(container, Callable):
             raise TypeError(f"Expected a callable, got {type(container)}")
+        
+        conf = None
+        if self._standard is not None:
+            conf = self._standard.get_similar(container)
 
-        return self._body.add_component(
+        comp: StreamlitLayoutParser = self._body.add_component(
             StreamlitLayoutParser(container, *args, **kwargs)
         )
+        if conf is not None:
+            comp.set_stateful(conf.is_stateful()).set_fatal(
+                conf.is_fatal()).set_strict(conf.is_strict()).set_column_based(
+                conf.is_column_based())
+
+        return comp
 
     def add_function(
         self,
