@@ -10,6 +10,8 @@ from ...core.build.cstparser import StreamlitComponentParser
 from ..components.canvas import Canvas
 from ..components.fragment import Fragment
 
+from ...config.base.standard import BaseStandard
+
 
 class StreamlitPageConfig(BaseModel):
     """
@@ -47,6 +49,7 @@ class AppPage(Canvas):
         failsafe: bool = False,
         failhandler: Callable[[Exception], Union[NoReturn, bool]] = None,
         strict: bool = True,
+        standard: BaseStandard = None,
     ):
         """
         Initialize a new AppPage instance.
@@ -65,6 +68,7 @@ class AppPage(Canvas):
             failhandler=failhandler,
             strict=strict
         )
+        self._standard = standard
     
     def add_fragment(
         self,
@@ -140,13 +144,24 @@ class AppPage(Canvas):
             component = component.component
             args = component.args
             kwargs = component.kwargs
-
+        
         if not isinstance(component, Callable):
             raise TypeError(f"Expected a callable, got {type(component)}")
-        return self._body.add_component(
+        
+        conf = None
+        if self._standard is not None:
+            conf = self._standard.get_similar(component)
+
+        
+        comp: StreamlitComponentParser = self._body.add_component(
             StreamlitComponentParser(component, *args, **kwargs)
         )
+        if conf is not None:
+            comp.set_stateful(conf.is_stateful()).set_fatal(
+                conf.is_fatal()).set_strict(conf.is_strict())
 
+        return comp
+    
     def add_container(
         self,
         container: Union[Callable[..., Any], StreamlitLayoutParser],
@@ -177,10 +192,20 @@ class AppPage(Canvas):
 
         if not isinstance(container, Callable):
             raise TypeError(f"Expected a callable, got {type(container)}")
+        
+        conf = None
+        if self._standard is not None:
+            conf = self._standard.get_similar(container)
 
-        return self._body.add_component(
+        comp: StreamlitLayoutParser = self._body.add_component(
             StreamlitLayoutParser(container, *args, **kwargs)
         )
+        if conf is not None:
+            comp.set_stateful(conf.is_stateful()).set_fatal(
+                conf.is_fatal()).set_strict(conf.is_strict()).set_column_based(
+                conf.is_column_based())
+
+        return comp
 
     
     def start(self):
