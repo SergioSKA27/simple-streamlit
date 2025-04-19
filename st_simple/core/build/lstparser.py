@@ -1,5 +1,7 @@
 from typing import List, Tuple, Dict, Any, Union, Callable, NoReturn, Literal
 
+from functools import partial
+
 from ..components.container import Container
 from ..handlers.schema import Schema
 from ..handlers.layer import Layer
@@ -169,6 +171,41 @@ class StreamlitLayoutParser(Parser):
         self._colum_based = column_based
         return self
 
+    def add_fragment(
+        self, fragment: Callable[..., Any]
+    ) -> "StreamlitLayoutParser":
+        """
+        Adds a fragment to the layout.
+
+        Args:
+            fragment (Callable[..., Any]): The fragment to be added.
+            *args: Additional positional arguments to be passed to the fragment.
+            **kwargs: Additional keyword arguments to be passed to the fragment.
+        
+        Returns:
+            StreamlitLayoutParser: A StreamlitLayoutParser object representing the added fragment.
+        """
+        return self.schema.add_component(
+            StreamlitLayoutParser(fragment)
+        )
+
+    def add_function(
+        self, function: Callable[..., Any], *args, **kwargs
+    ) -> StreamlitComponentParser:
+        """
+        Adds a function to the layout.
+
+        Args:
+            function (Callable[..., Any]): The function to be added.
+            *args: Additional positional arguments to be passed to the function.
+            **kwargs: Additional keyword arguments to be passed to the function.
+
+        Returns:
+            StreamlitComponentParser: A StreamlitComponentParser object representing the added function.
+        """
+        return self.schema.add_component(
+            partial(function, *args, **kwargs)
+        )
     def __getitem__(
         self, index: Union[int, str]
     ) -> Union[Layer, StreamlitComponentParser]:
