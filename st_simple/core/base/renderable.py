@@ -177,6 +177,33 @@ class Renderable(metaclass=ABCMeta):
         """
         return self._base_component
 
+    def _safe_effect_execution(self, effect: Callable[..., Any], *args, **kwargs) -> None:
+        """
+        Safely executes an effect function.
+        This method is used to execute the effect function and handle any exceptions that may occur during its execution.
+
+        Args:
+            effect (Callable[..., Any]): The effect function to be executed.
+            *args: Variable length argument list to be passed to the effect function.
+            **kwargs: Arbitrary keyword arguments to be passed to the effect function.
+        
+        Returns:
+            None: This method does not return anything.
+        
+        Raises:
+            Exception: Any exception raised by the effect function will be propagated.
+        """
+        try:
+            effect(*args, **kwargs)
+        except Exception as e:
+            if self._errhandler:
+                # the error handler should return True if the error was handled
+                # it also could be a NoReturn function(e.g. swithcpage,stop,rerun)
+                status = self._errhandler(e)
+
+            if not status:
+                raise e
+        
     def _safe_render(self, *args, **kwargs) -> Union[NoReturn, Any]:
         """
         Safely renders the component by calling the `render` method and handling any exceptions that occur.
@@ -199,7 +226,7 @@ class Renderable(metaclass=ABCMeta):
         try:
             if res := self.render(*args, **kwargs):
                 for eff in self._effects:
-                    eff(res)
+                    self._safe_effect_execution(eff, res)
                 return res
         except Exception as e:
             status = False
