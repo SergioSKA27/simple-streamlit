@@ -161,6 +161,11 @@ class StreamlitLayoutParser(Parser):
         Returns:
             StreamlitLayoutParser: The current StreamlitLayoutParser object.
         """
+        if not isinstance(column_based, bool):
+            raise ValueError(
+                f"Invalid value for column_based: {column_based}. Expected a boolean."
+            )
+
         self._colum_based = column_based
         return self
 
