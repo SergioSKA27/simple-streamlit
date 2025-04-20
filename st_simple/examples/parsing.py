@@ -74,6 +74,8 @@ text_declaration = StreamlitComponentParser(lambda: st.write(zero_division())) #
 
 # Note that we are using a lambda function to wrap the st.write function if we use the st.write without the zero_division function it will raise an exception.
 # Cause the zero_division function is called when declared, not when parsed.
+# So we need to wrap it in a lambda function to delay the execution of the zero_division function until the write function is called.
+
 # Add the error handling logic to the declaration
 # We can use the `set_errhandler` method to set the error handler for the component.
 # This method takes a callable that will be called when an error occurs receiving the exception as an argument.
@@ -186,3 +188,12 @@ usable_cols = cols_declaration.parse() # This will return a callable object that
 
 # This will render the columns and return its value.
 usable_cols()
+
+# This process of parsing the components and layout elements and calling it, could be a bit tedious.
+# So we can use the `__call__` method to call the component or layout element directly.
+# just by calling the parser directly, this is the same as calling the parse method
+# and then calling the component or layout element.
+
+component_declaration = StreamlitComponentParser(st.button, "Click me Directly", key="button_direct") # This is not rendered yet, just a declaration
+
+component_declaration() # This will render the button and return its value.
