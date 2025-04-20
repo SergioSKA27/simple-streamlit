@@ -70,7 +70,24 @@ class CommonRepresentation(BaseRepresentation):
         return self._type
 
     def __str__(self) -> str:
-        return f"{self._type.__name__}"
+        return f"{self._type.__name__}: {self.default_args}, {self.default_kwargs}, {self.get_parser_defaults()}"
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self._type.__name__})"
+
+    def serialize(self) -> Dict[str, Union[str, List[Any], Dict[str, Any]]]:
+        """
+        Serialize the representation into a dictionary.
+
+        Returns:
+            Dict[str, Union[str, List[Any], Dict[str, Any]]]: Serialized representation.
+        """
+        return {
+            "type": self._type.__name__,
+            "args": self.default_args,
+            "kwargs": self.default_kwargs,
+            "stateful": self.stateful,
+            "fatal": self.fatal,
+            "strict": self.strict,
+            "column_based": self.column_based,
+        }

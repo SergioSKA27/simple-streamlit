@@ -66,6 +66,20 @@ class BaseRepresentation(metaclass=ABCMeta):
             Callable[..., Any]: A callable that represents the generic factory.
         """
         raise NotImplementedError("Subclasses must implement this method.")
+    
+    @abstractmethod
+    def serialize(self, *args: Any, **kwargs: Any) -> Dict[str, Any]:
+        """
+        Abstract method to serialize the representation.
+
+        Args:
+            *args: Positional arguments.
+            **kwargs: Keyword arguments.
+
+        Returns:
+            Dict[str, Any]: A dictionary representing the serialized object.
+        """
+        raise NotImplementedError("Subclasses must implement this method.")
 
     @abstractmethod
     def deserialize(self, *args: Any, **kwargs: Any) -> Callable[..., Any]:
