@@ -10,7 +10,10 @@ from typing import (
     Optional,
 )
 from .layer import Layer
+import logging
 
+
+logger = logging.getLogger(__name__)
 
 class Schema:
     def __init__(
@@ -64,3 +67,36 @@ class Schema:
 
     def serialize(self) -> Dict[str, Any]:
         return self.main_body.serialize()
+    
+    @classmethod
+    def deserialize(
+        cls,
+        data: List[dict[str, Any]],
+        componentmap: dict[str, Any],
+        component_parser: type = None,
+        layer_parser: type = None,
+        strict: bool = False,
+    ) -> "Schema":
+        """
+        Unserializes a schema from a list of dictionaries.
+        
+        Args:
+            layerid (str): The ID of the layer.
+            data (List[dict[str, Any]]): The data to unserialize.
+            componentmap (dict[str, Any]): A map of components.
+            component_parser (type, optional): The component parser class. Defaults to None.
+            layer_parser (type, optional): The layer parser class. Defaults to None.
+            strict (bool, optional): Whether to use strict mode. Defaults to False.
+
+        Returns:
+            Schema: The unserialized schema.
+        """
+        schema = list(data.keys())[0] if data else "__body__"
+        layer = Layer.deserialize(schema, data[schema], componentmap, component_parser, layer_parser, strict)
+        schema_instance = cls(schema)
+        schema_instance._body = layer
+        schema_instance._schema = {schema: layer}
+
+        return schema_instance
+
+        
