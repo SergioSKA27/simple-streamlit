@@ -7,6 +7,9 @@ from typing import (
     Sequence,
 )
 from uuid import uuid4
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Layer:
@@ -15,6 +18,7 @@ class Layer:
         _id: Union[int, str],
         elements: Sequence[Callable[..., Any]] = None,
         order: Sequence[Union[int, str]] = None,
+        
     ):
         self._id = _id or uuid4().hex
         self.elements = elements or []
@@ -47,7 +51,7 @@ class Layer:
                 if "key" in el.kwargs and el.kwargs["key"] == index:
                     return el
         return self.elements[index]
-    
+
     def __call_all(self) -> List[Callable[..., Any]]:
         res = []
         for el in self.elements if not self.order else self.order:
@@ -55,15 +59,14 @@ class Layer:
                 element = self.__getitem__(el)
             else:
                 element = el
-            
+
             if hasattr(element, "parse"):
                 parsed = element.parse()
                 res.append(parsed())
             else:
                 res.append(
-                    element() # if the element is not parsable, just call it directly
+                    element()  # if the element is not parsable, just call it directly
                 )
-                
 
     def __call__(self, key=None) -> Union[Callable[..., Any], List[Callable[..., Any]]]:
         if key:
@@ -93,5 +96,52 @@ class Layer:
         for el in self.elements:
             if hasattr(el, "serialize"):
                 data.append(el.serialize())
-                
+
         return {self.idlayer: data}
+
+    @classmethod
+    def deserialize(
+        cls,
+        layerid: str,
+        data: List[dict[str, Any]],
+        componentmap: dict[str, Any],
+        component_parser: type = None,
+        layer_parser: type = None,
+        strict: bool = False,
+    ) -> "Layer":
+        layer = cls(layerid)
+        if not data:
+            logger.warning(
+                f"Layer {layerid} is empty. No components to deserialize."
+            )
+            return layer
+
+        for el in data:
+            if isinstance(el, dict):
+                if "__type__" in el:
+                    if el["__type__"] == "StreamlitComponentParser":
+                        component = component_parser.deserialize(el, componentmap,strict)
+                        layer.add_component(component)
+                    elif el["__type__"] == "StreamlitLayoutParser":
+                        layer.add_component(layer_parser.deserialize(el, componentmap))
+                    else:
+                        if strict:
+                            raise ValueError(f"Unknown type: {el['__type__']}")
+                        logger.warning(
+                            f"Unknown type: {el['__type__']}. Skipping deserialization."
+                        )
+                else:
+                    if strict:
+                        raise ValueError(
+                            f"Unknown type: {el}. Expected '__type__' key not found."
+                        )
+                    logger.warning(
+                        f"Unknown type: {el}. Expected '__type__' key not found. Skipping deserialization."
+                    )
+            else:   
+                if strict:
+                    raise ValueError(f"Unknown type: {el}. Expected dict.")
+                logger.warning(
+                    f"Unknown type: {el}. Expected dict. Skipping deserialization."
+                )
+        return layer
