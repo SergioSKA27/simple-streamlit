@@ -1,0 +1,5 @@
+pytest>=7.0
+pytest-cov
+sphinx>=5.0
+twine>=4.0
+streamlit>=1.29.0
