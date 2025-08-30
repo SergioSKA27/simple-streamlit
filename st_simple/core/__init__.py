@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from .base.renderable import Renderable
 from .base.stateful import Stateful
-from .base.layoutable import Layoutable
+from .base.composable import Composable
 
 from .components.ielement import IElement
 from .components.velement import VElement
@@ -21,7 +21,7 @@ from .handlers.layer import Layer
 __all__ = [
     "Renderable",
     "Stateful",
-    "Layoutable",
+    "Composable",
     "IElement",
     "VElement",
     "Container",
