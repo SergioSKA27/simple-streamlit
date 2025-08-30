@@ -2,12 +2,17 @@ from typing import List, Tuple, Dict, Any, Union, Callable, NoReturn, Literal
 
 from functools import partial
 
+from ...config.base.standard import BaseStandard
 from ..components.container import Container
 from ..handlers.schema import Schema
 from ..handlers.layer import Layer
 
 from .cstparser import StreamlitComponentParser
 from .base import Parser
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class StreamlitLayoutParser(Parser):
@@ -171,9 +176,7 @@ class StreamlitLayoutParser(Parser):
         self._colum_based = column_based
         return self
 
-    def add_fragment(
-        self, fragment: Callable[..., Any]
-    ) -> "StreamlitLayoutParser":
+    def add_fragment(self, fragment: Callable[..., Any]) -> "StreamlitLayoutParser":
         """
         Adds a fragment to the layout.
 
@@ -181,13 +184,11 @@ class StreamlitLayoutParser(Parser):
             fragment (Callable[..., Any]): The fragment to be added.
             *args: Additional positional arguments to be passed to the fragment.
             **kwargs: Additional keyword arguments to be passed to the fragment.
-        
+
         Returns:
             StreamlitLayoutParser: A StreamlitLayoutParser object representing the added fragment.
         """
-        return self.schema.add_component(
-            StreamlitLayoutParser(fragment)
-        )
+        return self.schema.add_component(StreamlitLayoutParser(fragment))
 
     def add_function(
         self, function: Callable[..., Any], *args, **kwargs
@@ -203,9 +204,8 @@ class StreamlitLayoutParser(Parser):
         Returns:
             StreamlitComponentParser: A StreamlitComponentParser object representing the added function.
         """
-        return self.schema.add_component(
-            partial(function, *args, **kwargs)
-        )
+        return self.schema.add_component(partial(function, *args, **kwargs))
+
     def __getitem__(
         self, index: Union[int, str]
     ) -> Union[Layer, StreamlitComponentParser]:
@@ -257,6 +257,7 @@ class StreamlitLayoutParser(Parser):
         c = self.parse().serialize()
         return {
             "__base__": c,
+            "__schema__": self.schema.serialize(),
             "__parser__": {
                 "stateful": self.parserconfig.stateful,
                 "fatal": self.parserconfig.fatal,
@@ -274,7 +275,7 @@ class StreamlitLayoutParser(Parser):
             StreamlitLayoutParser: The StreamlitLayoutParser object itself.
         """
         return self
-    
+
     def __exit__(self, exc_type, exc_value, traceback) -> None:
         """
         Exits the context manager and performs any necessary cleanup.
@@ -288,3 +289,86 @@ class StreamlitLayoutParser(Parser):
             None: This method does not return anything.
         """
         pass
+
+    @staticmethod
+    def __get_unserialized(
+        componentmap: Union[Dict[str, Any], BaseStandard], component: str
+    ):
+
+        if hasattr(componentmap, "get_similar"):
+            component_deserialized = componentmap.get_similar(component)
+            if component_deserialized is None:
+                raise ValueError(
+                    f"Component {component} not found in the component map."
+                )
+        else:
+            component_deserialized = componentmap.get(component, None)
+            if component_deserialized is None:
+                raise ValueError(
+                    f"Component {component} not found in the component map."
+                )
+        return component_deserialized
+
+    @classmethod
+    def deserialize(
+        cls,
+        data: Dict[str, Any],
+        componentmap: Union[Dict[str, Any], BaseStandard],
+        strict: bool = False,
+    ) -> "StreamlitLayoutParser":
+        """
+        Deserialize the given data into an appropriate component instance.
+
+        Args:
+            data (Dict[str, Any]): The serialized data to be deserialized.
+            componentmap (Union[Dict[str, Any], BaseStandard]): A mapping of components to their corresponding classes.
+
+        Returns:
+            StreamlitLayoutParser: The deserialized StreamlitLayoutParser object.
+        """
+        if "__base__" in data:
+            base = data["__base__"]
+            component = StreamlitLayoutParser.__get_unserialized(
+                componentmap, base["__component__"]
+            )
+            bargs = base["__args__"]
+            kwargs = bargs.pop("kwargs", {})
+            args = bargs.pop("args", [])
+
+        if "__schema__" in data:
+            schema = Schema.deserialize(
+                data["__schema__"], componentmap, StreamlitComponentParser, cls, strict
+            )
+        else:
+            schema = None
+            if strict:
+                raise ValueError(
+                    f"Schema not found in the data. Expected '__schema__' key not found."
+                )
+            logger.warning(
+                f"Schema not found in the data. Expected '__schema__' key not found. Using default schema."
+            )
+
+        if "__parser__" in data:
+            parserconfig = data["__parser__"]
+            stateful = parserconfig.get("stateful", False)
+            fatal = parserconfig.get("fatal", True)
+            strict = parserconfig.get("strict", False)
+            column_based = parserconfig.get("column_based", False)
+
+        instance = (
+            cls(
+                component.deserialize(),
+                *args,
+                **kwargs,
+            )
+            .set_fatal(fatal)
+            .set_strict(strict)
+            .set_stateful(stateful)
+            .set_column_based(column_based)
+        )
+        if schema is None:
+            return instance
+
+        instance.schema = schema
+        return instance
