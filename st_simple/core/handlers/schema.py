@@ -3,10 +3,7 @@ from typing import (
     Dict,
     Any,
     Callable,
-    NoReturn,
     Union,
-    Literal,
-    Sequence,
     Optional,
 )
 from .layer import Layer
@@ -52,7 +49,7 @@ class Schema:
 
     def __call__(self, key=None) -> Union[Layer, Callable[..., Any]]:
         if key:
-            return self.main_body[key]()
+            return self.main_body[key].__call__()
         return self._body()
 
     def __repr__(self) -> str:
