@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from .layoutable import Layoutable
+from .composable import Composable
 from .renderable import Renderable
 from .stateful import Stateful
 
 _all__ = [
-    "Layoutable",
+    "Composable",
     "Renderable",
     "Stateful",
 ]
