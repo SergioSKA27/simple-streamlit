@@ -1,9 +1,14 @@
 from typing import List, Dict, Any, Callable, NoReturn, Union, Optional
 
+from ...config.base.standard import BaseStandard
 from ..components.ielement import IElement
 from ..components.velement import VElement
 
 from .base import Parser
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 
 class StreamlitComponentParser(Parser):
@@ -100,8 +105,26 @@ class StreamlitComponentParser(Parser):
         }
 
     @staticmethod
+    def __get_unserialized(componentmap: Union[Dict[str, Any], BaseStandard],component: str):
+        
+        if hasattr(componentmap, "get_similar"):
+            component_deserialized = componentmap.get_similar(component)
+            if component_deserialized is None:
+                raise ValueError(
+                    f"Component {component} not found in the component map."
+                )
+        else:
+            component_deserialized = componentmap.get(component, None)
+            if component_deserialized is None:
+                raise ValueError(
+                    f"Component {component} not found in the component map."
+                )
+        return component_deserialized
+    
+    @classmethod
     def deserialize(
-        data: Dict[str, Any], componentmap: Dict[str, Callable[..., Any]]
+        cls,
+        data: Dict[str, Any], componentmap: Union[Dict[str, Any], BaseStandard],strict: bool = False
     ) -> "StreamlitComponentParser":
         """
         Deserialize the given data into an appropriate component instance.
@@ -112,15 +135,29 @@ class StreamlitComponentParser(Parser):
         Returns:
             Union[IElement, VElement]: An instance of IElement or VElement based on the deserialized data.
         """
+        parser = None
         if "__base__" in data:
-            parser = StreamlitComponentParser(
-                componentmap[data["__base__"]["__component__"]],
+            component = StreamlitComponentParser.__get_unserialized(
+                componentmap, data["__base__"]["__component__"]
+            )
+            if component is None:
+                if strict:
+                    raise ValueError(
+                        f"Component {data['__base__']['__component__']} not found in the component map."
+                    )
+                logger.warning(
+                    f"Component {data['__base__']['__component__']} not found in the component map. Using default component."
+                )
+            parser = cls(
+                component.deserialize(),
                 *data["__base__"]["__args__"]["args"] or [],
                 **data["__base__"]["__args__"]["kwargs"] or {},
             )
-            if "__parser__" in data:
-                parser.set_fatal(data["__parser__"]["fatal"]).set_strict(
-                    data["__parser__"]["strict"]
-                ).set_stateful(data["__parser__"]["stateful"]).set_autoconfig(
-                    data["__parser__"]["autoconfig"]
-                )
+        if "__parser__" in data and parser:
+            parser.set_fatal(data["__parser__"]["fatal"]).set_strict(
+                data["__parser__"]["strict"]
+            ).set_stateful(data["__parser__"]["stateful"]).set_autoconfig(
+                data["__parser__"]["autoconfig"]
+            )
+        
+        return parser
