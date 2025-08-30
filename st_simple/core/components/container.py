@@ -1,9 +1,9 @@
 from typing import List, Dict, Any, Callable, NoReturn, Union, Literal
 from ..base.renderable import Renderable
-from ..base.layoutable import Layoutable
+from ..base.composable import Composable
 
 
-class Container(Renderable, Layoutable):
+class Container(Renderable, Composable):
     def __init__(self, *args, **kwargs):
         """
         Initialize a new instance of the container component.
@@ -17,7 +17,7 @@ class Container(Renderable, Layoutable):
             _top_render (bool): Flag indicating if this is the top render.
         """
         Renderable.__init__(self, *args, **kwargs)
-        Layoutable.__init__(self)
+        Composable.__init__(self)
         self._base_component = None  # type: Callable[..., Any]
         self._top_render = False  # type: bool
         self.schema.set_body_name("__container__")
@@ -59,6 +59,5 @@ class Container(Renderable, Layoutable):
                 "args": self.args,
                 "kwargs": self.kwargs,
             },
-            "__schema__": self.schema.serialize(),
             "__type__": "Container",
         }
