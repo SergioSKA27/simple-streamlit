@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simple-streamlit"
+version = "0.1.0"
+authors = [
+    { name = "Sergio Lopez Martinez", email = "sergioska81@hotmail.com" },
+]
+description = "Simple Streamlit makes Streamlit apps more organized, reactive, and easy to maintain with a structured, component-based approach."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+classifiers = [
+    "Environment :: Plugins",
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Topic :: Streamlit :: Components",
+    "Topic :: Software Development :: Code Generators",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: User Interfaces",
+]
+keywords = [
+    "streamlit",
+    "streamlit-components",
+    "streamlit-plugins",
+    "streamlit-apps",
+    "web-development",
+    "python-libraries",
+    "python-packages",
+]
+dependencies = [
+    "streamlit>=1.29.0",]
+
+[project.urls]
+Homepage = "https://github.com/SergioSKA27/simple-streamlit"
+Documentation = "https://github.com/SergioSKA27/simple-streamlit/blob/main/README.md"
+
+[tool.setuptools.packages]
+find = {}
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+addopts = "--verbose --cov=simple-streamlit --cov-report=term-missing"
