@@ -1,11 +1,14 @@
-from st_simple import AppPage
+from st_simple import AppPage,StreamlitCommonStandard,SessionState
 import streamlit as st
 import pandas as pd
 import numpy as np
+from json import dumps
 
 # Initialize the application and configure the layout for a wide screen
-app = AppPage()
+app = AppPage(standard=StreamlitCommonStandard())
+filter_months = SessionState("filtered_months", [])
 app.set_page_config(layout="wide")
+
 
 # Set the title of the dashboard
 app.add_component(st.title, "Sales Dashboard")
@@ -18,7 +21,7 @@ data = pd.DataFrame({
 })
 
 # Sidebar: Add filters for data selection
-with app.add_container(st.popover,"Filters") as popover:
+with app.add_container(st.expander,"Filters") as popover:
     popover.add_component(
         st.multiselect, 
         "Select Months", 
@@ -26,11 +29,11 @@ with app.add_container(st.popover,"Filters") as popover:
         default=data['Month'].tolist(),
         key="month_filter"
     ).add_effect(
-        lambda val: app.set_state("filtered_months", val)
+        lambda val: filter_months.set_value(val) if val else filter_months.set_value([])
     )
 
 # Main content: Divide into two columns for visualization and data presentation
-with app.add_container(st.columns, 2).set_column_based(True) as columns:
+with app.add_container(st.columns, 2) as columns:
     # Column 1: Bar chart for sales data visualization
     columns.add_component(
         lambda: st.bar_chart(
@@ -47,3 +50,13 @@ with app.add_container(st.columns, 2).set_column_based(True) as columns:
 
 # Start the application (trigger the rendering process)
 app.start()
+
+serialized_app = app.serialize()
+
+st.write("Serialized App:",serialized_app)
+st.download_button(
+    label="Download Serialized App",
+    data=dumps(serialized_app),
+    file_name="serialized_app.json",
+    mime="application/json"
+)
