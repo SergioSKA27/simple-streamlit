@@ -65,6 +65,9 @@ class Schema:
     def serialize(self) -> Dict[str, Any]:
         return self.main_body.serialize()
     
+    def ast_serialize(self) -> Dict[str, Any]:
+        return self.main_body.ast_serialize()
+    
     @classmethod
     def deserialize(
         cls,

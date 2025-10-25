@@ -97,6 +97,14 @@ class Layer:
                 data.append(el.serialize())
 
         return {self.idlayer: data}
+    
+    def ast_serialize(self) -> dict[str, Any]:
+        data = []
+        for el in self.elements:
+            if hasattr(el, "ast_serialize"):
+                data.append(el.ast_serialize())
+
+        return [data]
 
     @classmethod
     def deserialize(
