@@ -101,7 +101,7 @@ class StreamlitComponentParser(Parser):
                 "strict": self.parserconfig.strict,
                 "autoconfig": self.parserconfig.autoconfig,
             },
-            "__type__": "StreamlitComponentParser",
+            "__engine__": "StreamlitComponentParser",
         }
 
     @staticmethod

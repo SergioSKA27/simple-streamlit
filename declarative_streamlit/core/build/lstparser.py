@@ -264,7 +264,7 @@ class StreamlitLayoutParser(Parser):
                 "strict": self.parserconfig.strict,
                 "column_based": self._colum_based,
             },
-            "__type__": "StreamlitLayoutParser",
+            "__engine__": "StreamlitLayoutParser",
         }
 
     def __enter__(self) -> "StreamlitLayoutParser":
