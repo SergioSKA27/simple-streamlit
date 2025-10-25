@@ -70,7 +70,7 @@ class Layer:
     def __call__(self, key=None) -> Union[Callable[..., Any], List[Callable[..., Any]]]:
         if key:
             # You can also use the key to render only a specific component
-            return self.__getitem__(key).parse()()
+            return self.__getitem__(key).parse().__call__()
         return self.__call_all()
 
     def __repr__(self) -> str:
