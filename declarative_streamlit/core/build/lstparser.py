@@ -266,6 +266,26 @@ class StreamlitLayoutParser(Parser):
             },
             "__engine__": "StreamlitLayoutParser",
         }
+    
+    def ast_serialize(self) -> Dict[str, Any]:
+        """
+        Serializes the parser configuration into a dictionary suitable for AST representation.
+
+        Returns:
+            Dict[str, Any]: A dictionary representation of the parser configuration.
+        """
+        return {
+            "component": self.component.__name__,
+            "args": self.args,
+            "kwargs": self.kwargs,
+            "parserconfig": {
+                "stateful": self.parserconfig.stateful,
+                "fatal": self.parserconfig.fatal,
+                "strict": self.parserconfig.strict,
+                "column_based": self._colum_based,
+            },
+            "schema": self.schema.ast_serialize(),
+        }
 
     def __enter__(self) -> "StreamlitLayoutParser":
         """

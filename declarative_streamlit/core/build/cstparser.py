@@ -1,11 +1,12 @@
 from typing import List, Dict, Any, Callable, NoReturn, Union, Optional
-
+from uuid import uuid4
 from ...config.base.standard import BaseStandard
 from ..components.ielement import IElement
 from ..components.velement import VElement
 
 from .base import Parser
 import logging
+
 
 logger = logging.getLogger(__name__)
 
@@ -102,6 +103,27 @@ class StreamlitComponentParser(Parser):
                 "autoconfig": self.parserconfig.autoconfig,
             },
             "__engine__": "StreamlitComponentParser",
+        }
+    
+
+    def ast_serialize(self) -> Dict[str, Any]:
+        """
+        Serializes the parser configuration into a dictionary suitable for AST representation.
+
+        Returns:
+            Dict[str, Any]: A dictionary representation of the parser configuration.
+        """
+        return {
+            "base_component": self.component.__name__,
+            "args": self.args,
+            "kwargs": self.kwargs,
+            "parserconfig": {
+                "stateful": self.parserconfig.stateful,
+                "fatal": self.parserconfig.fatal,
+                "strict": self.parserconfig.strict,
+                "autoconfig": self.parserconfig.autoconfig,
+            },
+            "unique_id": str(uuid4())[:8],
         }
 
     @staticmethod
