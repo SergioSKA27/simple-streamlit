@@ -69,7 +69,8 @@ class Renderable(metaclass=ABCMeta):
         Sets the top render flag for the renderable object.
 
         Args:
-            top_render (bool): A boolean indicating whether this object should be rendered on top.
+            top_render (bool): A boolean indicating whether this object is a top-level render (e.g., container, column, etc.)
+            this allows to identify the main render call in nested renderable objects.
 
         Returns:
             self: The instance of the renderable object.
@@ -102,7 +103,7 @@ class Renderable(metaclass=ABCMeta):
 
         Args:
             handler (Callable[[Exception], Union[NoReturn, bool]]): A callable that takes an Exception as an argument
-            and returns either NoReturn or a boolean value.
+            and returns either NoReturn or a boolean value indicating whether the error was handled.
 
         Returns:
             self: The instance of the renderable object with the error handler set.
