@@ -1,4 +1,4 @@
-from st_simple.core.build.cstparser import StreamlitComponentParser
+from declarative_streamlit.core.build.cstparser import StreamlitComponentParser
 from streamlit import button
 from test.support import unittest
 

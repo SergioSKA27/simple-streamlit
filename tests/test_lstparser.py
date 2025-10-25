@@ -1,7 +1,7 @@
-from st_simple.core.build.lstparser import StreamlitLayoutParser
-from st_simple.core.build.cstparser import StreamlitComponentParser
-from st_simple.core.handlers.layer import Layer
-from st_simple.core.handlers.schema import Schema
+from declarative_streamlit.core.build.lstparser import StreamlitLayoutParser
+from declarative_streamlit.core.build.cstparser import StreamlitComponentParser
+from declarative_streamlit.core.handlers.layer import Layer
+from declarative_streamlit.core.handlers.schema import Schema
 from streamlit import container,button
 from test.support import unittest
 
