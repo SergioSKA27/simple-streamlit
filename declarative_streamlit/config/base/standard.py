@@ -135,4 +135,18 @@ class BaseStandard(ABC):
         else:
             raise ValueError("Invalid default binding type. Use 'type' or 'name'.")
 
+    def get_representations(self,stringfy: bool = False) -> List[Union[BaseRepresentation,str]]:
+        """
+        Get all representations in the standard.
+
+        Args:
+            stringfy (bool): Whether to return string representations. Defaults to False.
+
+        Returns:
+            List[Union[BaseRepresentation,str]]: List of representations or their string forms.
+        """
+        if stringfy:
+            return [rep.get_str_representation() for rep in self.representations]
+        
+        return self.representations 
 
