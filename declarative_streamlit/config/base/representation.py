@@ -1,4 +1,4 @@
-from typing import Any, Callable, Union, Dict, List, Optional, Tuple, TypeVar
+from typing import Any, Callable, Union, Dict, List, Optional, Tuple, TypeVar,Literal
 from abc import ABCMeta, abstractmethod
 
 T = TypeVar("T", bound="BaseRepresentation")  # Type variable for method chaining
@@ -30,6 +30,7 @@ class BaseRepresentation(metaclass=ABCMeta):
         fatal: bool = False,
         strict: bool = True,
         column_based: bool = False,
+        bind: Optional[Literal["type", "name"]] = "name",
         **kwargs: Dict[str, Any]
     ):
         """
@@ -52,6 +53,7 @@ class BaseRepresentation(metaclass=ABCMeta):
         self.column_based = column_based
         self.kwargs = kwargs
         self._type = None  # type: Optional[TypeVar]
+        self.bind = bind
 
     @abstractmethod
     def generic_factory(self, *args: Any, **kwargs: Any) -> Callable[..., Any]:
@@ -95,6 +97,7 @@ class BaseRepresentation(metaclass=ABCMeta):
         """
         raise NotImplementedError("Subclasses must implement this method.")
 
+
     def get_parser_defaults(self):
         return {
             "stateful": self.stateful,
@@ -102,6 +105,15 @@ class BaseRepresentation(metaclass=ABCMeta):
             "strict": self.strict,
             "column_based": self.column_based,
         }
+    
+    def get_str_representation(self) -> str:
+        """
+        Get the string representation of the type.
+
+        Returns:
+            str: String representation of the type.
+        """
+        return self._type.__name__
 
     def get_default_args(self) -> List[Any]:
         """
@@ -186,5 +198,17 @@ class BaseRepresentation(metaclass=ABCMeta):
         Returns:
             bool: True if equal, False otherwise.
         """
-        return   value == self._type.__name__ or value.__name__ == self._type.__name__ 
+        return   value == self._type.__name__ or value.__name__ == self._type.__name__
     
+
+    def __repr__(self) -> str:
+        """
+        Get the string representation of the representation.
+
+        Returns:
+            str: String representation.
+        """
+        return self._type.__name__ if self.bind == "name" else str(type(self))
+
+    def __str__(self):
+        return self._type.__name__ if self.bind == "name" else str(type(self))
