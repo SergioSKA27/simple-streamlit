@@ -4,12 +4,11 @@ from declarative_streamlit.base.app.dialog import AppDialog
 from declarative_streamlit.base.logic import SessionState
 from declarative_streamlit.config.common.stdstreamlit import StreamlitCommonStandard
 
+from declarative_streamlit.build.native.hlparser import merge_templates
 # You can also import directly the classes you need
 # from st_simple import AppPage, AppFragment, AppDialog, SessionState, ...
 
 import streamlit as st
-import random
-from datetime import datetime
 
 AppPage.set_page_config(
     layout="wide",
@@ -261,6 +260,11 @@ app.add_component(st.button, "Show Dialog", key="dialog").add_effect(
 
 app.add_component(st.button, "Generic Button", key="generic")
 
+app.add_component(st.image, imgs[1], width=200, caption="Image outside container")
+parser = app.main_body["selectbox"]
+st.write(app.main_body.ast_serialize())
+st.code( merge_templates([d for d in app.main_body.elements if hasattr(d, "ast_serialize")]) )
+
 
 app.start()  # This will start the app page and render all the components and containers in the main body of the app page
 st.write(app.serialize())
@@ -282,4 +286,4 @@ st.write(app.serialize())
 # Also you can still use the set methods to override the default values if you want to add a more specific behavior to the component or container
 std = StreamlitCommonStandard()
 
-st.write(std.get_similar(st.columns)) # This will return the StreamlitCommonStandard class that is similar to the st.columns class
+st.write(std.get_representations(stringfy=True)) # This will return the StreamlitCommonStandard class that is similar to the st.columns class
