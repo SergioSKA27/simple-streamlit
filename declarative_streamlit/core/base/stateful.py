@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Callable, NoReturn, Union
+from typing import Any, Callable
 from abc import ABC, abstractmethod
 
 
@@ -37,7 +37,7 @@ class Stateful(ABC):
         raise NotImplementedError("The track_state method must be implemented")
 
     @abstractmethod
-    def set_state(self, state: Any):
+    def _set_state(self, state: Any):
         """
         Set the state of the object.
 
