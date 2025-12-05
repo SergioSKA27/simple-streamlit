@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from .broker import Broker
+from .broker import BaseBroker
 from .message import TopicMessage
-from .topic import Topic
+from .topic import BaseTopic
 
 
 __all__ = [
-    "Broker",
+    "BaseBroker",
     "TopicMessage",
-    "Topic",
+    "BaseTopic",
 ]
