@@ -1,4 +1,4 @@
-from typing import Any, Callable, Union, Dict, List, Optional, Tuple, TypeVar,Literal
+from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar,Literal
 from abc import ABCMeta, abstractmethod
 
 T = TypeVar("T", bound="BaseRepresentation")  # Type variable for method chaining
