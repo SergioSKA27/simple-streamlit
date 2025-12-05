@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Callable, NoReturn, Union, Literal
+from typing import Any, Callable
 from ..base.renderable import Renderable
 from ..base.composable import Composable
 
@@ -18,11 +18,11 @@ class Container(Renderable, Composable):
         """
         Renderable.__init__(self, *args, **kwargs)
         Composable.__init__(self)
-        self._base_component = None  # type: Callable[..., Any]
-        self._top_render = False  # type: bool
+        self._base_component: Callable[..., Any] = None
+        self._top_render: bool = False
         self.schema.set_body_name("__container__")
 
-    def render(self, *args, **kwargs):
+    def render(self, *args, **kwargs) -> Any:
         """
         Renders the base component with the provided arguments and keyword arguments.
 
