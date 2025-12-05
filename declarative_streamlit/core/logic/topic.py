@@ -23,7 +23,6 @@ from typing import (
     Union,
     Optional,
     Callable,
-    Literal,
     TypeVar,
     overload,
     cast,
@@ -31,7 +30,6 @@ from typing import (
     Tuple,
     TYPE_CHECKING,
 )
-from abc import ABCMeta, abstractmethod
 import logging
 import queue
 import time
@@ -60,11 +58,16 @@ class TopicProcessingError(Exception):
     pass
 
 
+class BaseTopicHandler(Dict[str, Any]):
+    """Type alias for topic handler metadata dictionary"""
+    pass
+
+
 # Type variable for handler functions
 HandlerType = TypeVar("HandlerType", bound=Callable[[Any], None])
 
 
-class BaseTopic(metaclass=ABCMeta):
+class BaseTopic:
     """
     Base class for topic implementation in event-driven architecture.
 
@@ -290,9 +293,9 @@ class BaseTopic(metaclass=ABCMeta):
         self._register_sender(sender_closure, handler.__name__)
 
         # Add metadata to the original handler for debugging
-        setattr(handler, "_topic_registered", True)
-        setattr(handler, "_topic_id", self._full_id)
-        setattr(handler, "_topic_priority", priority)
+        handler._topic_registered = True
+        handler._topic_id = self._full_id
+        handler._topic_priority = priority
 
         return handler
 
@@ -377,7 +380,7 @@ class BaseTopic(metaclass=ABCMeta):
             message = cast("TopicMessage", {
                 "sender": f"{self._full_id}.{handler_name}",
                 "data": data,
-                "destination": self._id,
+                "destination": handler_name,
                 "message_type": "generic" if generic else handler_name,
                 **kwargs
             })
@@ -426,6 +429,9 @@ class BaseTopic(metaclass=ABCMeta):
             event: The event to process
         """
         for handler in self._handlers:
+
+            if event.get("destination") != handler["name"] and event.get("destination") not in handler["aliases"] and not handler["generic"]:
+                continue  # Skip handlers not matching the destination or not generic
             try:
                 if handler["is_async"]:
                     asyncio.create_task(handler["handler"](event["data"]))
