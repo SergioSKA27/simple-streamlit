@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Callable, NoReturn, Union, Optional
+from typing import Dict, Any, Callable, NoReturn, Union
 from uuid import uuid4
 from ...config.base.standard import BaseStandard
 from ..components.ielement import IElement

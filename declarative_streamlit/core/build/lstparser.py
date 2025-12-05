@@ -1,4 +1,4 @@
-from typing import List, Tuple, Dict, Any, Union, Callable, NoReturn, Literal
+from typing import Dict, Any, Union, Callable, NoReturn
 
 from functools import partial
 
@@ -27,7 +27,7 @@ class StreamlitLayoutParser(Parser):
         """
         super().__init__(container, *args, **kwargs)
         self._colum_based = False  # type: bool
-        self.schema = Schema(f"__children__")
+        self.schema = Schema("__children__")
 
     @property
     def body(self) -> Layer:
@@ -363,10 +363,10 @@ class StreamlitLayoutParser(Parser):
             schema = None
             if strict:
                 raise ValueError(
-                    f"Schema not found in the data. Expected '__schema__' key not found."
+                    "Schema not found in the data. Expected '__schema__' key not found."
                 )
             logger.warning(
-                f"Schema not found in the data. Expected '__schema__' key not found. Using default schema."
+                "Schema not found in the data. Expected '__schema__' key not found. Using default schema."
             )
 
         if "__parser__" in data:

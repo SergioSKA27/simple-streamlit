@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Callable, Union, Optional, TypeVar, cast
+from typing import List, Any, Callable, Optional, TypeVar, cast
 from abc import ABC, abstractmethod
 
 from .models.base import ParserConfig
