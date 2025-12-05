@@ -1,4 +1,4 @@
-from typing import Dict, Any, Callable, TypeVar, cast
+from typing import Dict, Any, Callable, TypeVar
 from streamlit import session_state
 
 from ..base.renderable import Renderable
@@ -34,9 +34,9 @@ class IElement(Renderable, Stateful):
         """
         # Validate inputs using Pydantic model
         config = IElementConfig(args=args, kwargs=kwargs)
-        
         Renderable.__init__(self, *config.args, **config.kwargs)
         Stateful.__init__(self, *config.args, **config.kwargs)
+        self._internal_state: Dict[str, Any] = {}
 
     def _set_base_component(self, base_component: Callable[..., Any]) -> T:
         """
@@ -54,6 +54,20 @@ class IElement(Renderable, Stateful):
         # Validate base component using Pydantic model
         config = BaseComponentConfig(component=base_component)
         return super()._set_base_component(config.component)
+
+    def _set_state(self, state):
+        """
+        Set the state of the element.
+
+        Args:
+            state (Any): The new state to be set.
+
+        Raises:
+            NotImplementedError: If the method is not implemented by a subclass.
+        """
+        self._internal_state = state
+        return self._internal_state
+
 
     def render(self, *args, **kwargs) -> Any:
         """
@@ -98,7 +112,7 @@ class IElement(Renderable, Stateful):
         try:
             config = StateKeyConfig(key=self.key)
         except ValueError:
-            raise ValueError("Invalid key: must be a non-empty string")
+            raise ValueError("Invalid key: must be a non-empty string") from None
             
         if config.key not in session_state:
             return None
