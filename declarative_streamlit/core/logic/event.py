@@ -30,5 +30,16 @@ class BaseEvent(ABC):
         self.alias = alias
         self.allow_broadcast = allow_broadcast
         self._handlers = []
+
+
+    @abstractmethod
+    def trigger(self, message: Dict[str, Any]) -> None:
+        """
+        Trigger the event with the given message.
+
+        Args:
+            message: The message associated with the event
+        """
+        pass
         
         
