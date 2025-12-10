@@ -1,7 +1,6 @@
-from typing import Any, Callable, Union, Dict, List, Optional, Tuple, TypeVar
+from typing import Any, Callable, Union, Dict, List
 
 from ...core.build.cstparser import StreamlitComponentParser
-from ...core.build.lstparser import StreamlitLayoutParser
 from ..base.representation import BaseRepresentation
 
 
