@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Callable, NoReturn, Union, Literal, Optional
+from typing import Dict, Any, Callable, NoReturn, Union, Literal, Optional
 
 from functools import partial
 
@@ -55,7 +55,7 @@ class AppDialog(Dialog):
             failhandler=failhandler,
             strict=strict,
         )
-        self._standard = standard # type: Optional[BaseStandard]
+        self._standard: Optional[BaseStandard] = standard
 
     def add_component(
         self,
