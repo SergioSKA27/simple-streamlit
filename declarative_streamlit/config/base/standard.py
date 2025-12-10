@@ -1,11 +1,10 @@
-from typing import Any, Callable, Union, Dict, List, Optional, Tuple, TypeVar,Literal,cast
-from abc import ABC, abstractmethod
+from typing import Any, Union, Dict, List, Optional, Tuple, TypeVar,Literal,cast
 
 from .representation import BaseRepresentation
 
 T = TypeVar("T", bound="BaseStandard")  # Type variable for method chaining
 
-class BaseStandard(ABC):
+class BaseStandard:
     """
     Base class for a collection of standard representations.
     It helps to manage the standard representations and their configurations.
