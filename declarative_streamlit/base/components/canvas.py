@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Callable, NoReturn, Union, TypeVar,cast
+from typing import Dict, Any, Callable, NoReturn, Union, TypeVar,cast
 from abc import ABCMeta, abstractmethod
 from ...core.build.lstparser import StreamlitLayoutParser
 from ...core.build.cstparser import StreamlitComponentParser
@@ -147,7 +147,7 @@ class Canvas(metaclass=ABCMeta):
         try:
             return self.main_body[key]
         except KeyError:
-            raise KeyError(f"Key '{key}' not found in canvas schema")
+            raise KeyError(f"Key '{key}' not found in canvas schema") from None
 
     def __str__(self) -> str:
         """

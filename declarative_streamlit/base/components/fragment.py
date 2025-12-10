@@ -1,5 +1,5 @@
-from typing import Any, Callable, Union, NoReturn, cast
-from abc import ABCMeta, abstractmethod
+from typing import Callable, Union, NoReturn
+from abc import ABCMeta
 from datetime import timedelta
 from streamlit import fragment
 from .canvas import Canvas
