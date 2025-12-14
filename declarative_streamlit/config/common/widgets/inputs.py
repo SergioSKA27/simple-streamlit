@@ -1,6 +1,50 @@
-from streamlit import number_input,slider,date_input,time_input,text_input,text_area
+import streamlit as st
+from typing import Any
 from uuid import uuid4
 from ..representation import CommonRepresentation
+
+# Try to import components, fallback to mock using st.warning if not available
+try:
+    from streamlit import number_input
+except ImportError:
+    def number_input(*args: Any, **kwargs: Any) -> Any:
+        st.warning("Number Input component not available in this Streamlit version")
+        return None
+
+try:
+    from streamlit import slider
+except ImportError:
+    def slider(*args: Any, **kwargs: Any) -> Any:
+        st.warning("Slider component not available in this Streamlit version")
+        return None
+
+try:
+    from streamlit import date_input
+except ImportError:
+    def date_input(*args: Any, **kwargs: Any) -> Any:
+        st.warning("Date Input component not available in this Streamlit version")
+        return None
+
+try:
+    from streamlit import time_input
+except ImportError:
+    def time_input(*args: Any, **kwargs: Any) -> Any:
+        st.warning("Time Input component not available in this Streamlit version")
+        return None
+
+try:
+    from streamlit import text_input
+except ImportError:
+    def text_input(*args: Any, **kwargs: Any) -> Any:
+        st.warning("Text Input component not available in this Streamlit version")
+        return None
+
+try:
+    from streamlit import text_area
+except ImportError:
+    def text_area(*args: Any, **kwargs: Any) -> Any:
+        st.warning("Text Area component not available in this Streamlit version")
+        return None
 
 
 
@@ -118,7 +162,9 @@ class TextAreaRepresentation(CommonRepresentation[text_area]):
 try:
     from streamlit import chat_input
 except ImportError:
-    chat_input = None
+    def chat_input(*args: Any, **kwargs: Any) -> Any:
+        st.warning("Chat Input component not available in this Streamlit version")
+        return None
 
 
 class ChatInputRepresentation(CommonRepresentation[chat_input]):
