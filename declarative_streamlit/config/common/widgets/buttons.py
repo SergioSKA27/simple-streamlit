@@ -2,7 +2,7 @@ from streamlit import button,download_button,form_submit_button,link_button,page
 from uuid import uuid4
 from ..representation import CommonRepresentation
 
-class ButtonRepresentation(CommonRepresentation):
+class ButtonRepresentation(CommonRepresentation[button]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -18,8 +18,7 @@ class ButtonRepresentation(CommonRepresentation):
 
         self.set_type(button)
 
-
-class DownloadButtonRepresentation(CommonRepresentation):
+class DownloadButtonRepresentation(CommonRepresentation[download_button]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -40,7 +39,7 @@ class DownloadButtonRepresentation(CommonRepresentation):
         self.set_type(download_button)
 
 
-class FormSubmitButtonRepresentation(CommonRepresentation):
+class FormSubmitButtonRepresentation(CommonRepresentation[form_submit_button]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -56,9 +55,7 @@ class FormSubmitButtonRepresentation(CommonRepresentation):
 
         self.set_type(form_submit_button)
 
-
-
-class LinkButtonRepresentation(CommonRepresentation):
+class LinkButtonRepresentation(CommonRepresentation[link_button]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -74,8 +71,7 @@ class LinkButtonRepresentation(CommonRepresentation):
 
         self.set_type(link_button)
 
-
-class PageLinkRepresentation(CommonRepresentation):
+class PageLinkRepresentation(CommonRepresentation[page_link]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -89,5 +85,3 @@ class PageLinkRepresentation(CommonRepresentation):
         )
 
         self.set_type(page_link)
-
-

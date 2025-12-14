@@ -3,7 +3,7 @@ from uuid import uuid4
 from ..representation import CommonRepresentation
 
 
-class SelectboxRepresentation(CommonRepresentation):
+class SelectboxRepresentation(CommonRepresentation[selectbox]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -20,7 +20,7 @@ class SelectboxRepresentation(CommonRepresentation):
 
         self.set_type(selectbox)
 
-class MultiselectRepresentation(CommonRepresentation):
+class MultiselectRepresentation(CommonRepresentation[multiselect]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -38,7 +38,7 @@ class MultiselectRepresentation(CommonRepresentation):
         self.set_type(multiselect)
 
 
-class RadioRepresentation(CommonRepresentation):
+class RadioRepresentation(CommonRepresentation[radio]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -56,7 +56,7 @@ class RadioRepresentation(CommonRepresentation):
         self.set_type(radio)
 
 
-class CheckboxRepresentation(CommonRepresentation):
+class CheckboxRepresentation(CommonRepresentation[checkbox]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -72,7 +72,7 @@ class CheckboxRepresentation(CommonRepresentation):
 
         self.set_type(checkbox)
 
-class SelectSliderRepresentation(CommonRepresentation):
+class SelectSliderRepresentation(CommonRepresentation[select_slider]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -90,7 +90,7 @@ class SelectSliderRepresentation(CommonRepresentation):
         self.set_type(select_slider)
 
 
-class ColorPickerRepresentation(CommonRepresentation):
+class ColorPickerRepresentation(CommonRepresentation[color_picker]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -107,7 +107,7 @@ class ColorPickerRepresentation(CommonRepresentation):
 
         self.set_type(color_picker)
 
-class ToggleRepresentation(CommonRepresentation):
+class ToggleRepresentation(CommonRepresentation[toggle]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -128,7 +128,7 @@ try:
 except ImportError:
     feedback = None
 
-class FeedbackRepresentation(CommonRepresentation):
+class FeedbackRepresentation(CommonRepresentation[feedback]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -148,7 +148,7 @@ try:
 except ImportError:
     pills = None
 
-class PillsRepresentation(CommonRepresentation):
+class PillsRepresentation(CommonRepresentation[pills]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -169,7 +169,7 @@ try:
 except ImportError:
     segmented_control = None
 
-class SegmentedControlRepresentation(CommonRepresentation):
+class SegmentedControlRepresentation(CommonRepresentation[segmented_control]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={

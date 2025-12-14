@@ -3,7 +3,7 @@ from streamlit import container, expander, form
 from ..representation import CommonRepresentation
 
 
-class ContainerRepresentation(CommonRepresentation):
+class ContainerRepresentation(CommonRepresentation[container]):
     def __init__(self) -> None:
         super().__init__(
             stateful=False,
@@ -15,7 +15,7 @@ class ContainerRepresentation(CommonRepresentation):
         self.set_type(container)
 
 
-class ExpanderRepresentation(CommonRepresentation):
+class ExpanderRepresentation(CommonRepresentation[expander]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -31,7 +31,7 @@ class ExpanderRepresentation(CommonRepresentation):
         self.set_type(expander)
 
 
-class FormRepresentation(CommonRepresentation):
+class FormRepresentation(CommonRepresentation[form]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -52,7 +52,7 @@ except ImportError:
     popover = None
 
 
-class PopoverRepresentation(CommonRepresentation):
+class PopoverRepresentation(CommonRepresentation[popover]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -74,7 +74,7 @@ except ImportError:
     chat_message = None
 
 
-class ChatMessageRepresentation(CommonRepresentation):
+class ChatMessageRepresentation(CommonRepresentation[chat_message]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={

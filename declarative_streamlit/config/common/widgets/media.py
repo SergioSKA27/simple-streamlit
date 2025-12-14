@@ -3,7 +3,7 @@ from uuid import uuid4
 from ..representation import CommonRepresentation
 
 
-class FileUploaderRepresentation(CommonRepresentation):
+class FileUploaderRepresentation(CommonRepresentation[file_uploader]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -20,7 +20,7 @@ class FileUploaderRepresentation(CommonRepresentation):
 
         self.set_type(file_uploader)
 
-class DataEditorRepresentation(CommonRepresentation):
+class DataEditorRepresentation(CommonRepresentation[data_editor]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -35,7 +35,7 @@ class DataEditorRepresentation(CommonRepresentation):
 
         self.set_type(data_editor)
 
-class CameraInputRepresentation(CommonRepresentation):
+class CameraInputRepresentation(CommonRepresentation[camera_input]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -57,7 +57,7 @@ try:
 except ImportError:
     audio_input = None
 
-class AudioInputRepresentation(CommonRepresentation):
+class AudioInputRepresentation(CommonRepresentation[audio_input]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={

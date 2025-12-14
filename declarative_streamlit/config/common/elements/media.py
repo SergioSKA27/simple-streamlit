@@ -4,7 +4,7 @@ from ..representation import CommonRepresentation
 
 
 
-class ImageRepresentation(CommonRepresentation):
+class ImageRepresentation(CommonRepresentation[image]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -20,7 +20,7 @@ class ImageRepresentation(CommonRepresentation):
         self.set_type(image)
 
 
-class VideoRepresentation(CommonRepresentation):
+class VideoRepresentation(CommonRepresentation[video]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -36,7 +36,7 @@ class VideoRepresentation(CommonRepresentation):
 
         self.set_type(video)
 
-class AudioRepresentation(CommonRepresentation):
+class AudioRepresentation(CommonRepresentation[audio]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={

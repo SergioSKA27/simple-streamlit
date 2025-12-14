@@ -1,7 +1,7 @@
 from streamlit import success,error,warning,info
 from ..representation import CommonRepresentation
 
-class SuccessRepresentation(CommonRepresentation):
+class SuccessRepresentation(CommonRepresentation[success]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -16,7 +16,7 @@ class SuccessRepresentation(CommonRepresentation):
 
         self.set_type(success)
 
-class ErrorRepresentation(CommonRepresentation):
+class ErrorRepresentation(CommonRepresentation[error]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -31,7 +31,7 @@ class ErrorRepresentation(CommonRepresentation):
 
         self.set_type(error)
 
-class WarningRepresentation(CommonRepresentation):
+class WarningRepresentation(CommonRepresentation[warning]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -46,7 +46,7 @@ class WarningRepresentation(CommonRepresentation):
 
         self.set_type(warning)
 
-class InfoRepresentation(CommonRepresentation):
+class InfoRepresentation(CommonRepresentation[info]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={

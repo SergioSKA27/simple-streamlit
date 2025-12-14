@@ -5,7 +5,7 @@ from ..representation import CommonRepresentation
 
 
 
-class NumberInputRepresentation(CommonRepresentation):
+class NumberInputRepresentation(CommonRepresentation[number_input]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -25,7 +25,8 @@ class NumberInputRepresentation(CommonRepresentation):
 
         self.set_type(number_input)
 
-class SliderRepresentation(CommonRepresentation):
+
+class SliderRepresentation(CommonRepresentation[slider]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -45,7 +46,7 @@ class SliderRepresentation(CommonRepresentation):
         self.set_type(slider)
 
 
-class DateInputRepresentation(CommonRepresentation):
+class DateInputRepresentation(CommonRepresentation[date_input]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -63,7 +64,7 @@ class DateInputRepresentation(CommonRepresentation):
         self.set_type(date_input)
 
 
-class TimeInputRepresentation(CommonRepresentation):
+class TimeInputRepresentation(CommonRepresentation[time_input]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -80,7 +81,7 @@ class TimeInputRepresentation(CommonRepresentation):
 
         self.set_type(time_input)
 
-class TextInputRepresentation(CommonRepresentation):
+class TextInputRepresentation(CommonRepresentation[text_input]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -97,7 +98,7 @@ class TextInputRepresentation(CommonRepresentation):
 
         self.set_type(text_input)
 
-class TextAreaRepresentation(CommonRepresentation):
+class TextAreaRepresentation(CommonRepresentation[text_area]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -120,7 +121,7 @@ except ImportError:
     chat_input = None
 
 
-class ChatInputRepresentation(CommonRepresentation):
+class ChatInputRepresentation(CommonRepresentation[chat_input]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -133,4 +134,4 @@ class ChatInputRepresentation(CommonRepresentation):
             column_based=False,
         )
 
-        self.set_type(chat_input) if chat_input else None
+        self.set_type(chat_input)

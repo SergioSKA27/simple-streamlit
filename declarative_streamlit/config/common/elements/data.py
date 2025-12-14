@@ -10,7 +10,7 @@ example_df = DataFrame({
 })
 
 
-class DataFrameRepresentation(CommonRepresentation):
+class DataFrameRepresentation(CommonRepresentation[dataframe]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -25,7 +25,7 @@ class DataFrameRepresentation(CommonRepresentation):
 
         self.set_type(dataframe)
 
-class JSONRepresentation(CommonRepresentation):
+class JSONRepresentation(CommonRepresentation[json]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -40,7 +40,7 @@ class JSONRepresentation(CommonRepresentation):
 
         self.set_type(json)
 
-class TableRepresentation(CommonRepresentation):
+class TableRepresentation(CommonRepresentation[table]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -55,7 +55,7 @@ class TableRepresentation(CommonRepresentation):
         self.set_type(table)
 
 
-class MetricRepresentation(CommonRepresentation):
+class MetricRepresentation(CommonRepresentation[metric]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={

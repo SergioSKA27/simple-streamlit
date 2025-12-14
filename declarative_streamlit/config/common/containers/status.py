@@ -2,7 +2,7 @@ from streamlit import spinner,status
 from ..representation import CommonRepresentation
 
 
-class StatusRepresentation(CommonRepresentation):
+class StatusRepresentation(CommonRepresentation[status]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -17,7 +17,7 @@ class StatusRepresentation(CommonRepresentation):
 
         self.set_type(status)
     
-class SpinnerRepresentation(CommonRepresentation):
+class SpinnerRepresentation(CommonRepresentation[spinner]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={

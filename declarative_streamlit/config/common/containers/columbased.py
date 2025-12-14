@@ -2,7 +2,7 @@ from streamlit import columns,tabs
 from ..representation import CommonRepresentation
 
 
-class ColumnsRepresentation(CommonRepresentation):
+class ColumnsRepresentation(CommonRepresentation[columns]):
     def __init__(self) -> None:
         super().__init__(
             stateful=False,
@@ -14,7 +14,7 @@ class ColumnsRepresentation(CommonRepresentation):
         self.set_type(columns)
     
 
-class TabsRepresentation(CommonRepresentation):
+class TabsRepresentation(CommonRepresentation[tabs]):
     def __init__(self) -> None:
         super().__init__(
             stateful=False,

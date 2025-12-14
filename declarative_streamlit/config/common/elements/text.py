@@ -2,7 +2,7 @@ from streamlit import header, subheader, title, caption, markdown, code, latex,t
 from ..representation import CommonRepresentation
 
 
-class HeaderRepresentation(CommonRepresentation):
+class HeaderRepresentation(CommonRepresentation[header]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -18,7 +18,7 @@ class HeaderRepresentation(CommonRepresentation):
         self.set_type(header)
 
 
-class SubheaderRepresentation(CommonRepresentation):
+class SubheaderRepresentation(CommonRepresentation[subheader]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -33,7 +33,7 @@ class SubheaderRepresentation(CommonRepresentation):
 
         self.set_type(subheader)
 
-class TitleRepresentation(CommonRepresentation):
+class TitleRepresentation(CommonRepresentation[title]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -48,7 +48,7 @@ class TitleRepresentation(CommonRepresentation):
 
         self.set_type(title)
 
-class CaptionRepresentation(CommonRepresentation):
+class CaptionRepresentation(CommonRepresentation[caption]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -63,7 +63,7 @@ class CaptionRepresentation(CommonRepresentation):
 
         self.set_type(caption)
 
-class MarkdownRepresentation(CommonRepresentation):
+class MarkdownRepresentation(CommonRepresentation[markdown]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -78,7 +78,7 @@ class MarkdownRepresentation(CommonRepresentation):
 
         self.set_type(markdown)
 
-class CodeRepresentation(CommonRepresentation):
+class CodeRepresentation(CommonRepresentation[code]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -95,7 +95,7 @@ class CodeRepresentation(CommonRepresentation):
         self.set_type(code)
 
 
-class LatexRepresentation(CommonRepresentation):
+class LatexRepresentation(CommonRepresentation[latex]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -110,7 +110,7 @@ class LatexRepresentation(CommonRepresentation):
 
         self.set_type(latex)
 
-class TextRepresentation(CommonRepresentation):
+class TextRepresentation(CommonRepresentation[text]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -131,7 +131,7 @@ try:
 except ImportError:
     html = None
 
-class HtmlRepresentation(CommonRepresentation):
+class HtmlRepresentation(CommonRepresentation[html]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
@@ -151,7 +151,7 @@ try:
 except ImportError:
     badge = None
 
-class BadgeRepresentation(CommonRepresentation):
+class BadgeRepresentation(CommonRepresentation[badge]):
     def __init__(self) -> None:
         super().__init__(
             default_kwargs={
