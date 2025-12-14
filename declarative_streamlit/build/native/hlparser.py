@@ -1,8 +1,7 @@
-from jinja2 import Environment, BaseLoader, Template
-from typing import List, Dict, Any, Union
+from jinja2 import Environment, BaseLoader
+from typing import List
 
 from ...core.build.cstparser import StreamlitComponentParser
-from jinja2 import Environment, BaseLoader
 
 # Entorno global con filtro predefinido
 GLOBAL_ENV = Environment(loader=BaseLoader(), autoescape=False) # nosec B701
