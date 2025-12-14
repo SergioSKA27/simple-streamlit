@@ -1,10 +1,13 @@
-from typing import Any, Callable, Union, Dict, List
+from abc import ABCMeta
+from typing import Any, Callable, Dict, List, TypeVar, Union
 
 from ...core.build.cstparser import StreamlitComponentParser
 from ..base.representation import BaseRepresentation
 
+T = TypeVar("T")
 
-class CommonRepresentation(BaseRepresentation):
+
+class CommonRepresentation(BaseRepresentation[T], metaclass=ABCMeta):
     """
     A class that represents a common representation in the system.
     It is a subclass of BaseRepresentation and provides additional functionality.
@@ -18,7 +21,7 @@ class CommonRepresentation(BaseRepresentation):
         fatal: bool = False,
         strict: bool = True,
         column_based: bool = False,
-        **kwargs: Dict[str, Any]
+        **kwargs: Dict[str, Any],
     ) -> None:
         """
         Initialize the CommonRepresentation with default arguments and keyword arguments.
@@ -62,9 +65,9 @@ class CommonRepresentation(BaseRepresentation):
             .set_fatal(self.fatal)
             .set_strict(self.strict)
         )
-    
+
         return p
-    
+
     def deserialize(self) -> Callable[..., Any]:
         return self._type
 
@@ -74,9 +77,42 @@ class CommonRepresentation(BaseRepresentation):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self._type.__name__})"
 
+    def ast_definition(self, *args, **kwargs):
+        _type = self.get_type()
+        return {
+            "name": _type.__name__,
+            "ctype": _type,
+            "attributes": self.get_default_args_definition(),
+            "reserved_names": self.get_default_parser_definition(),
+        }
+
+    def get_default_args_definition(self) -> Dict[str, Any]:
+        """
+        Get the default arguments definition.
+
+        Returns:
+            Dict[str, Any]: A dictionary representing the default arguments.
+        """
+        _args_def = {"args": list}
+
+        for kw in self.default_kwargs.keys():
+            _args_def[kw] = type(self.default_kwargs[kw])
+
+        return _args_def
+
+    def get_default_parser_definition(self) -> Dict[str, Any]:
+        """
+        Get the default parser definition.
+
+        Returns:
+            Dict[str, Any]: A dictionary representing the default parser definition.
+        """
+        return dict(map(lambda k: (k[0], type(k[1])), self.get_parser_defaults().items()))
+
     def serialize(self) -> Dict[str, Union[str, List[Any], Dict[str, Any]]]:
         """
-        Serialize the representation into a dictionary.
+        Serialize the representation into
+          a dictionary.
 
         Returns:
             Dict[str, Union[str, List[Any], Dict[str, Any]]]: Serialized representation.
