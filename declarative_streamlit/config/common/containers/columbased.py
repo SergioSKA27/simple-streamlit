@@ -1,5 +1,21 @@
-from streamlit import columns,tabs
+import streamlit as st
+from typing import Any
 from ..representation import CommonRepresentation
+
+# Try to import components, fallback to mock using st.warning if not available
+try:
+    from streamlit import columns
+except ImportError:
+    def columns(*args: Any, **kwargs: Any) -> Any:
+        st.warning("Columns component not available in this Streamlit version")
+        return None
+
+try:
+    from streamlit import tabs
+except ImportError:
+    def tabs(*args: Any, **kwargs: Any) -> Any:
+        st.warning("Tabs component not available in this Streamlit version")
+        return None
 
 
 class ColumnsRepresentation(CommonRepresentation[columns]):

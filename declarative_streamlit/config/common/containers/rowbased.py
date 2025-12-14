@@ -1,6 +1,29 @@
+import streamlit as st
+from typing import Any
 from uuid import uuid4
-from streamlit import container, expander, form
 from ..representation import CommonRepresentation
+
+# Try to import components, fallback to mock using st.warning if not available
+try:
+    from streamlit import container
+except ImportError:
+    def container(*args: Any, **kwargs: Any) -> Any:
+        st.warning("Container component not available in this Streamlit version")
+        return None
+
+try:
+    from streamlit import expander
+except ImportError:
+    def expander(*args: Any, **kwargs: Any) -> Any:
+        st.warning("Expander component not available in this Streamlit version")
+        return None
+
+try:
+    from streamlit import form
+except ImportError:
+    def form(*args: Any, **kwargs: Any) -> Any:
+        st.warning("Form component not available in this Streamlit version")
+        return None
 
 
 class ContainerRepresentation(CommonRepresentation[container]):
@@ -49,7 +72,9 @@ class FormRepresentation(CommonRepresentation[form]):
 try:
     from streamlit import popover
 except ImportError:
-    popover = None
+    def popover(*args: Any, **kwargs: Any) -> Any:
+        st.warning("Popover component not available in this Streamlit version")
+        return None
 
 
 class PopoverRepresentation(CommonRepresentation[popover]):
@@ -65,13 +90,15 @@ class PopoverRepresentation(CommonRepresentation[popover]):
             column_based=False,
         )
 
-        self.set_type(popover) if popover is not None else None
+        self.set_type(popover)
 
 
 try:
     from streamlit import chat_message
 except ImportError:
-    chat_message = None
+    def chat_message(*args: Any, **kwargs: Any) -> Any:
+        st.warning("Chat Message component not available in this Streamlit version")
+        return None
 
 
 class ChatMessageRepresentation(CommonRepresentation[chat_message]):
@@ -86,4 +113,4 @@ class ChatMessageRepresentation(CommonRepresentation[chat_message]):
             column_based=False,
         )
 
-        self.set_type(chat_message) if chat_message is not None else None
+        self.set_type(chat_message)
