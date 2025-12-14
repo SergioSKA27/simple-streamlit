@@ -1,9 +1,10 @@
-from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar,Literal
+from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar,Literal, Generic
 from abc import ABCMeta, abstractmethod
-
+from inspect import signature
 T = TypeVar("T", bound="BaseRepresentation")  # Type variable for method chaining
+V = TypeVar("V")  # Generic type variable
 
-class BaseRepresentation(metaclass=ABCMeta):
+class BaseRepresentation(Generic[V], metaclass=ABCMeta):
     """
     Base class for all representations.
 
@@ -13,7 +14,6 @@ class BaseRepresentation(metaclass=ABCMeta):
     specific behavior through the use of the different parsers.
     """
 
-    TYPE = None  # type: Optional[TypeVar]
 
     # Use the singleton pattern to ensure that only one instance of the class is created
     
@@ -97,6 +97,16 @@ class BaseRepresentation(metaclass=ABCMeta):
         """
         raise NotImplementedError("Subclasses must implement this method.")
 
+    @abstractmethod
+    def ast_definition(self, *args: Any, **kwargs: Any) -> Dict[str, Any]:
+        """
+        Abstract method to get the AST definition of the representation.
+
+        Returns:
+            Dict[str, Any]: A dictionary representing the AST definition.
+        """
+        raise NotImplementedError("Subclasses must implement this method.")
+
 
     def get_parser_defaults(self):
         return {
@@ -142,6 +152,36 @@ class BaseRepresentation(metaclass=ABCMeta):
         """
         return (self._type, self.deserialize)
 
+    def _get_type_init_args(self) -> List[str]:
+        """
+        Get the initialization arguments of the type.
+
+        Returns:
+            List[str]: List of initialization argument names.
+        """
+        _type = self.get_type()
+        if _type is None:
+            return []
+        return list(signature(_type).parameters.keys())
+
+    def _fill_missing_kwargs(self, missing: List[str]) -> Dict[str, Any]:
+        """
+        Fill missing keyword arguments with default values.
+
+        Args:
+            missing (List[str]): List of missing keyword argument names.
+
+        Returns:
+            Dict[str, Any]: Dictionary of filled keyword arguments.
+        """
+        filled_kwargs = {}
+        for key in missing:
+            if key in self.default_kwargs:
+                continue
+            filled_kwargs[key] = None
+
+        return filled_kwargs
+
     def set_type(self, typ: TypeVar) -> None:
         """
         Set the type for the representation.
@@ -150,6 +190,9 @@ class BaseRepresentation(metaclass=ABCMeta):
             typ (TypeVar): The type to set.
         """
         self._type = typ
+        missing_keys = self._get_type_init_args()
+        filled_kwargs = self._fill_missing_kwargs(missing_keys)
+        self.default_kwargs.update(filled_kwargs)
 
     def is_stateful(self) -> bool:
         """
@@ -187,6 +230,14 @@ class BaseRepresentation(metaclass=ABCMeta):
         """
         return self.column_based
 
+    def get_type(self) -> V:
+        """
+        Get the type of the representation.
+
+        Returns:
+            V: The type of the representation.
+        """
+        return self._type
 
     def __eq__(self, value):
         """
