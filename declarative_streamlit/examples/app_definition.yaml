@@ -1,261 +1,306 @@
-name: "Enterprise Dashboard"
-description: "A comprehensive dashboard showcasing advanced event-driven architecture"
-standard: "common-streamlit"
+meta:
+  name: Enterprise Dashboard
+  description: A comprehensive dashboard showcasing advanced event-driven architecture
+  standard: common-streamlit
+  version: 1.2.0
 
 session:
- user_id:
-   initial_state: "anonymous"
-   type: "str"
-   strict: true
- 
- selected_department:
-   initial_state: "all"
-   type: "str" 
-   strict: true
-   
- sales_data:
-   initial_state: []
-   type: "list"
-   strict: false
-   deserialize: true
-   engine: "json"
-   
- filter_cache:
-   initial_state: {}
-   type: "dict"
-   strict: false
-   
- dashboard_state:
-   initial_state: "loading"
-   type: "str"
-   strict: true
+  user_id:
+    initial_state: anonymous
+    type: str
+    strict: true
 
-elements:
- save_button:
-   type: "button"
-   label: "💾 Save Changes"
-   help: "Save all pending changes"
-   key: "save_btn"
-   on_click: "save_all_data"
-   
- refresh_button:
-   type: "button" 
-   label: "🔄 Refresh"
-   key: "refresh_btn"
-   on_click: "refresh_dashboard"
-   
- status_indicator:
-   type: "write"
-   content: "System Status: Loading..."
-   
- error_display:
-   type: "error"
-   content: "Something went wrong!"
-   
- success_message:
-   type: "success"
-   content: "Data saved successfully!"
+  selected_department:
+    initial_state: all
+    type: str
+    strict: true
+
+  sales_data:
+    initial_state: []
+    type: list | dict
+    strict: false
+    deserialize: true
+    engine: json
+
+  filter_cache:
+    initial_state: {}
+    type: dict
+    strict: false
+
+  dashboard_state:
+    initial_state: loading
+    type: str
+    strict: true
+
+components:
+  save_button:
+    type: button
+    label: 💾 Save Changes
+    help: Save all pending changes
+    key: save_btn
+    action: save_all_data
+
+  status_selector:
+    type: selectbox
+    label: System Status
+    options: [operational, degraded, offline]
+    default: operational
+    key: status_selector
+    action: update_system_status
+    inherit_value: true # Handler gets selected value
+
+  refresh_button:
+    type: button
+    label: 🔄 Refresh
+    key: refresh_btn
+    action: refresh_dashboard
+
+  status_indicator:
+    type: write
+    content: "System Status: Loading..."
+
+  error_display:
+    type: error
+    content: Something went wrong!
+
+  success_message:
+    type: success
+    content: Data saved successfully!
 
 main:
- st_title:
-   args: "🏢 Enterprise Dashboard"
-   
- st_caption:
-   args: "Real-time business intelligence with event-driven architecture"
-   unsafe_allow_html: true
-   
- # Header controls with broadcast example
- st_container:
-   elements:
-     - st_selectbox:
-         label: "Department Filter"
-         options: ["all", "sales", "marketing", "engineering", "finance"]
-         key: "dept_filter"
-         on_change: "filter_department"
-         inherit_value: true  # Handler gets selected value
-         
-     - element:
-         name: "refresh_button"
-         
-     - element:
-         name: "save_button"
-   border: true
-   order: "sequential"
-   
- # Multi-column layout with complex interactions  
- st_columns:
-   elements:
-     # Left column - Filters and controls
-     - st_container:
-         elements:
-           - st_subheader:
-               args: "Filters & Controls"
-               
-           - st_date_input:
-               label: "Date Range"
-               key: "date_range"
-               on_change: "update_date_filter"
-               inherit_value: true
-               
-           - st_multiselect:
-               label: "Metrics to Display"
-               options: ["revenue", "users", "conversion", "churn"]
-               default: ["revenue", "users"]
-               key: "metrics_selector"
-               on_change: "update_metrics"
-               inherit_value: true
-               
-           - st_slider:
-               label: "Refresh Interval (seconds)"
-               min_value: 5
-               max_value: 300
-               value: 30
-               key: "refresh_interval"
-               on_change: "update_refresh_rate"
-               inherit_value: true
-               
-           - st_button:
-               label: "🚨 Emergency Reset"
-               key: "emergency_reset"
-               on_click: "emergency_reset_handler"
-               help: "Broadcasts reset signal to all components"
-               
-     # Right column - Data visualization
-     - st_container:
-         elements:
-           - st_subheader:
-               args: "Key Metrics"
-               
-           - element:
-               name: "status_indicator"
-               
-           - st_plotly_chart:
-               key: "main_chart"
-               config:
-                 displayModeBar: false
-               use_container_width: true
-               
-           - st_dataframe:
-               key: "metrics_table" 
-               use_container_width: true
-               on_select: "row_selected"
-               inherit_value: true
-               selection_mode: "multi-row"
-               
-   size: 2
-   gap: "large"
-   order: [1, 2]
-   
- # Expandable sections with conditional rendering
- st_expander:
-   label: "🔍 Advanced Analytics"
-   expanded: false
-   elements:
-     - st_tabs:
-         tabs: ["Trends", "Forecasts", "Anomalies"]
-         elements:
-           # Trends tab
-           - st_container:
-               elements:
-                 - st_line_chart:
-                     key: "trends_chart"
-                     
-                 - st_button:
-                     label: "Export Trends"
-                     key: "export_trends" 
-                     on_click: "export_data"
-                     
-           # Forecasts tab  
-           - st_container:
-               elements:
-                 - st_area_chart:
-                     key: "forecast_chart"
-                     
-                 - st_selectbox:
-                     label: "Forecast Model"
-                     options: ["linear", "exponential", "seasonal"]
-                     key: "forecast_model"
-                     on_change: "update_forecast_model"
-                     inherit_value: true
-                     
-           # Anomalies tab
-           - st_container:
-               elements:
-                 - st_scatter_chart:
-                     key: "anomaly_chart"
-                     
-                 - st_number_input:
-                     label: "Sensitivity Threshold"
-                     min_value: 0.1
-                     max_value: 3.0
-                     value: 2.0
-                     step: 0.1
-                     key: "anomaly_threshold"
-                     on_change: "update_anomaly_detection"
-                     inherit_value: true
-                     
- # Action buttons with handler composition
- st_container:
-   elements:
-     - st_columns:
-         elements:
-           - element:
-               name: "save_button"
-               
-           - st_button:
-               label: "📧 Send Report"
-               key: "send_report"
-               on_click: "generate_and_send_report"
-               
-           - st_button:
-               label: "⚙️ Recalculate All"
-               key: "recalculate"
-               on_click: "recalculate_metrics"
-               
-         size: 3
-         gap: "small"
-         
-     # Status messages (conditionally rendered)
-     - element:
-         name: "error_display"
-         conditional: "show_error"  # Only show if session state show_error is true
-         
-     - element:
-         name: "success_message" 
-         conditional: "show_success"
-         
-   border: true
-   
-# Fragment for real-time updates
-fragments:
- realtime_updates:
-   run_every: "30s"
-   elements:
-     - st_metric:
-         label: "Live Users"
-         value: "session:live_users"  # Reference session state
-         key: "live_users_metric"
-         
-     - st_metric:
-         label: "System Health"
-         value: "session:system_health"
-         key: "health_metric"
-   on_render: "update_realtime_data"  # Called every 30s
+  app_title:
+    type: title
+    args: 🏢 Enterprise Dashboard
 
+  caption1:
+    type: caption
+    args: Real-time business intelligence with event-driven architecture
+    unsafe_allow_html: true
+
+  # Header controls with broadcast example
+  my_container:
+    type: container
+    border: true
+    order: sequential
+    elements:
+      - selectbox1:
+        label: Department Filter
+        options: [all, sales, marketing, engineering, finance]
+        key: dept_filter
+        action: filter_department
+        inherit_value: true # Handler gets selected value
+
+      - refresh_button1:
+        type: refresh_button
+
+      - save_button1:
+          type: save_button
+
+
+  # Multi-column layout with complex interactions
+  my_columns:
+    type: columns
+    size: 2
+    gap: large
+    order: [1, 2]
+    elements:
+      # Left column - Filters and controls
+      - container_col1:
+          type: container
+          order: sequential
+          border: false
+          elements:
+            - c1_subheader:
+                type: subheader
+                args: Filters & Controls
+
+            - my_date_input:
+                type: date_input
+                label: Date Range
+                key: date_range
+                action: update_date_filter
+                inherit_value: true
+
+            - my_multiselect:
+                type: multiselect
+                label: Metrics to Display
+                options: [revenue, users, conversion, churn]
+                default: [revenue, users]
+                key: metrics_selector
+                action: update_metrics
+                inherit_value: true
+
+            - my_slider:
+                type: slider
+                label: Refresh Interval (seconds)
+                min_value: 5
+                max_value: 300
+                value: 30
+                key: refresh_interval
+                action: update_refresh_rate
+                inherit_value: true
+
+            - my_button:
+                type: button
+                label: 🚨 Emergency Reset
+                key: emergency_reset
+                action: emergency_reset_handler
+                help: Broadcasts reset signal to all components
+
+      # Right column - Data visualization
+      - st_container:
+          elements:
+            - st_subheader:
+                type: subheader
+                args: Key Metrics
+
+            - status_indicator_element:
+                type: status_indicator
+
+            - plotly_chart_element:
+                type: plotly_chart
+                key: main_chart
+                config:
+                  displayModeBar: false
+                use_container_width: true
+
+            - df:
+                type: data_frame
+                key: metrics_table
+                use_container_width: true
+                on_select: row_selected
+                inherit_value: true
+                selection_mode: multi-row
+
+
+  # Expandable sections with conditional rendering
+  my_expander:
+    type: expander
+    label: 🔍 Advanced Analytics
+    expanded: false
+    elements:
+      - st_tabs:
+          tabs: [Trends, Forecasts, Anomalies]
+          type: tabs
+          elements:
+            # Trends tab
+            - st_container1:
+                type: container
+                order: sequential
+                elements:
+                  - st_line_chart:
+                      type: line_chart
+                      args: [{{$session.read.sales_data}}]
+                      key: trends_chart
+
+                  - st_button:
+                      label: Export Trends
+                      key: export_trends
+                      on_click: export_data
+
+            # Forecasts tab
+            - st_container2:
+                type: container
+                order: sequential
+                elements:
+                  - st_area_chart:
+                      type: area_chart
+                      args: [{{$session.read.sales_data}}]
+                      key: forecast_chart
+
+                  - st_selectbox:
+                      label: Forecast Model
+                      options: [linear, exponential, seasonal]
+                      key: forecast_model
+                      on_change: update_forecast_model
+                      inherit_value: true
+
+            # Anomalies tab
+            - st_container:
+                type: container
+                order: sequential
+                elements:
+                  - st_scatter_chart:
+                      type: scatter_chart
+                      args: [{{$session.read.sales_data}}]
+                      key: anomaly_chart
+
+                  - st_number_input:
+                      type: number_input
+                      label: Sensitivity Threshold
+                      min_value: 0.1
+                      max_value: 3.0
+                      value: 2.0
+                      step: 0.1
+                      key: anomaly_threshold
+                      on_change: update_anomaly_detection
+                      inherit_value: true
+
+  # Action buttons with handler composition
+  st_container_2:
+    type: container
+    order: sequential
+    elements:
+      - st_columns:
+          type: columns
+          size: 3
+          gap: small
+          elements:
+            - my_save_button:
+                type: save_button
+
+            - st_button1:
+                type: button
+                label: 📧 Send Report
+                key: send_report
+                action: generate_and_send_report
+
+            - st_button2:
+                type: button
+                label: ⚙️ Recalculate All
+                key: recalculate
+                action: recalculate_metrics
+
+
+      # Status messages (conditionally rendered)
+      - conditional_error_display:
+          type: error_display
+          conditional: {{$session.read.show_error}} # Only show if session state show_error is true
+
+      - conditional_success_message:
+          type: success_message
+          conditional: {{$session.read.show_success}} # Only show if session state show_success is true
+
+    border: true
+
+  realtime_updates:
+    type: fragment
+    run_every: 30s
+    elements:
+      - st_metric:
+          label: Live Users
+          value: session:live_users # Reference session state
+          key: live_users_metric
+
+      - st_metric:
+          label: System Health
+          value: session:system_health
+          key: health_metric
+    on_render: update_realtime_data # Called every 30s
 # Event handlers configuration
 handlers:
- filter_department:
-   blacklist: ["internal_state"]  # Don't send internal state to handler
-   
- save_all_data:
-   publishes_to: ["validate_data", "backup_data"]  # Handler composition
-   
- emergency_reset_handler:
-   broadcasts: true  # Sends to ALL handlers
-   
- recalculate_metrics:
-   publishes_to: ["update_charts", "refresh_tables", "clear_cache"]
-   
- generate_and_send_report:
-   publishes_to: ["generate_report"]
-   async: false  # Explicit async control
+  filter_department:
+    blacklist: [internal_state] # Don't send internal state to handler
+
+  save_all_data:
+    publishes_to: [validate_data, backup_data] # Handler composition
+
+  emergency_reset_handler:
+    broadcasts: true # Sends to ALL handlers
+
+  recalculate_metrics:
+    publishes_to: [update_charts, refresh_tables, clear_cache]
+
+  generate_and_send_report:
+    publishes_to: [generate_report]
+    async: false # Explicit async control
