@@ -104,7 +104,7 @@ class Layer:
             if hasattr(el, "ast_serialize"):
                 data.append(el.ast_serialize())
 
-        return [data]
+        return data
 
     @classmethod
     def deserialize(
