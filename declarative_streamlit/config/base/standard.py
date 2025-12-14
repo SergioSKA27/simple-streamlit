@@ -55,9 +55,9 @@ class BaseStandard:
         """
         if isinstance(value, str):
             return self.__search_by_name(value)
-        return self.__search_by_type(value)
+        return self._search_by_type(value)
     
-    def __search_by_type(self, typ: Any) -> Optional[BaseRepresentation]:
+    def _search_by_type(self, typ: Any) -> Optional[BaseRepresentation]:
         """
         Search for a representation by type.
 
@@ -69,12 +69,12 @@ class BaseStandard:
         """
         for rep in self.representations:
             if rep == typ:
-                if bind := self.__find_binding(rep):
+                if bind := self._find_binding(rep):
                     return bind
                 return rep
         return None
     
-    def __find_binding(self, typ: Any) -> Optional[BaseRepresentation]:
+    def _find_binding(self, typ: Any) -> Optional[BaseRepresentation]:
         """
         Find a binding for the given type.
 
@@ -99,7 +99,7 @@ class BaseStandard:
         return None
 
 
-    def __search_by_name(self, name: str) -> Optional[BaseRepresentation]:
+    def _search_by_name(self, name: str) -> Optional[BaseRepresentation]:
         """
         Search for a representation by name.
 
@@ -111,7 +111,7 @@ class BaseStandard:
         """
         for rep in self.representations:
             if name == rep:
-                if bind := self.__find_binding(rep):
+                if bind := self._find_binding(rep):
                     return bind
                 return rep
         return None
@@ -128,9 +128,9 @@ class BaseStandard:
             Optional[BaseRepresentation]: The found representation or None.
         """
         if self.defaultbinding == "type":
-            return self.__search_by_type(key)
+            return self._search_by_type(key)
         elif self.defaultbinding == "name":
-            return self.__search_by_name(key)
+            return self._search_by_name(key)
         else:
             raise ValueError("Invalid default binding type. Use 'type' or 'name'.")
 
