@@ -1,5 +1,63 @@
-from streamlit import header, subheader, title, caption, markdown, code, latex,text
+import streamlit as st
+from typing import Any
 from ..representation import CommonRepresentation
+
+# Try to import components, fallback to mock using st.warning if not available
+try:
+    from streamlit import header
+except ImportError:
+    def header(*args: Any, **kwargs: Any) -> Any:
+        st.warning("Header component not available in this Streamlit version")
+        return None
+
+try:
+    from streamlit import subheader
+except ImportError:
+    def subheader(*args: Any, **kwargs: Any) -> Any:
+        st.warning("Subheader component not available in this Streamlit version")
+        return None
+
+try:
+    from streamlit import title
+except ImportError:
+    def title(*args: Any, **kwargs: Any) -> Any:
+        st.warning("Title component not available in this Streamlit version")
+        return None
+
+try:
+    from streamlit import caption
+except ImportError:
+    def caption(*args: Any, **kwargs: Any) -> Any:
+        st.warning("Caption component not available in this Streamlit version")
+        return None
+
+try:
+    from streamlit import markdown
+except ImportError:
+    def markdown(*args: Any, **kwargs: Any) -> Any:
+        st.warning("Markdown component not available in this Streamlit version")
+        return None
+
+try:
+    from streamlit import code
+except ImportError:
+    def code(*args: Any, **kwargs: Any) -> Any:
+        st.warning("Code component not available in this Streamlit version")
+        return None
+
+try:
+    from streamlit import latex
+except ImportError:
+    def latex(*args: Any, **kwargs: Any) -> Any:
+        st.warning("Latex component not available in this Streamlit version")
+        return None
+
+try:
+    from streamlit import text
+except ImportError:
+    def text(*args: Any, **kwargs: Any) -> Any:
+        st.warning("Text component not available in this Streamlit version")
+        return None
 
 
 class HeaderRepresentation(CommonRepresentation[header]):
@@ -129,7 +187,9 @@ class TextRepresentation(CommonRepresentation[text]):
 try:
     from streamlit import html
 except ImportError:
-    html = None
+    def html(*args: Any, **kwargs: Any) -> Any:
+        st.warning("HTML component not available in this Streamlit version")
+        return None
 
 class HtmlRepresentation(CommonRepresentation[html]):
     def __init__(self) -> None:
@@ -143,13 +203,15 @@ class HtmlRepresentation(CommonRepresentation[html]):
             column_based=False,
         )
 
-        self.set_type(html) if html else None
+        self.set_type(html)
 
 
 try:
     from streamlit import badge
 except ImportError:
-    badge = None
+    def badge(*args: Any, **kwargs: Any) -> Any:
+        st.warning("Badge component not available in this Streamlit version")
+        return None
 
 class BadgeRepresentation(CommonRepresentation[badge]):
     def __init__(self) -> None:
@@ -164,4 +226,4 @@ class BadgeRepresentation(CommonRepresentation[badge]):
             column_based=False,
         )
 
-        self.set_type(badge) if badge else None
+        self.set_type(badge)

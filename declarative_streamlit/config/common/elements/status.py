@@ -1,5 +1,35 @@
-from streamlit import success,error,warning,info
+import streamlit as st
+from typing import Any
 from ..representation import CommonRepresentation
+
+# Try to import components, fallback to mock using st.warning if not available
+try:
+    from streamlit import success
+except ImportError:
+    def success(*args: Any, **kwargs: Any) -> Any:
+        st.warning("Success component not available in this Streamlit version")
+        return None
+
+try:
+    from streamlit import error
+except ImportError:
+    def error(*args: Any, **kwargs: Any) -> Any:
+        st.warning("Error component not available in this Streamlit version")
+        return None
+
+try:
+    from streamlit import warning
+except ImportError:
+    def warning(*args: Any, **kwargs: Any) -> Any:
+        st.warning("Warning component not available in this Streamlit version")
+        return None
+
+try:
+    from streamlit import info
+except ImportError:
+    def info(*args: Any, **kwargs: Any) -> Any:
+        st.warning("Info component not available in this Streamlit version")
+        return None
 
 class SuccessRepresentation(CommonRepresentation[success]):
     def __init__(self) -> None:

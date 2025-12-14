@@ -1,5 +1,28 @@
-from streamlit import audio,video, image
+import streamlit as st
+from typing import Any
 from ..representation import CommonRepresentation
+
+# Try to import components, fallback to mock using st.warning if not available
+try:
+    from streamlit import audio
+except ImportError:
+    def audio(*args: Any, **kwargs: Any) -> Any:
+        st.warning("Audio component not available in this Streamlit version")
+        return None
+
+try:
+    from streamlit import video
+except ImportError:
+    def video(*args: Any, **kwargs: Any) -> Any:
+        st.warning("Video component not available in this Streamlit version")
+        return None
+
+try:
+    from streamlit import image
+except ImportError:
+    def image(*args: Any, **kwargs: Any) -> Any:
+        st.warning("Image component not available in this Streamlit version")
+        return None
 
 
 
